@@ -1,0 +1,30 @@
+# Environment and local configs
+.env
+.env.local
+.env.*.local
+
+# Node & dependencies
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# PHP & Composer
+vendor/
+composer.phar
+.phpunit.result.cache
+
+# Logs and databases
+*.log
+storage/logs/*
+!storage/logs/.gitkeep
+storage/private_uploads/*
+!storage/private_uploads/.gitkeep
+*.sqlite
+*.sqlite-journal
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

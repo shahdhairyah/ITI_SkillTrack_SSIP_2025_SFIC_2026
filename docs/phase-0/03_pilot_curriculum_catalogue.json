@@ -1,0 +1,207 @@
+{
+  "trade": {
+    "code": "ELE-01",
+    "name": "Electrician",
+    "nsqf_level": 4,
+    "duration_years": 2,
+    "description": "Craftsmen Training Scheme (CTS) Electrician Trade covers electrical workshop safety, domestic and industrial wiring, transformer maintenance, and AC/DC rotating machine operations."
+  },
+  "modules": [
+    {
+      "code": "MOD-ELE-01",
+      "title": "Workshop Safety and Basic Electrical Tools",
+      "sequence_no": 1,
+      "activities": [
+        {
+          "code": "ACT-ELE-101",
+          "title": "Identification and Handling of Electrical Hand Tools & PPE",
+          "instructions": "Demonstrate the safe identification, inspection, and application of insulated combination pliers, wire strippers, neon testers, and safety gloves.",
+          "criteria": [
+            {
+              "code": "CRIT-101-1",
+              "description": "Inspection and proper wearing of Personal Protective Equipment (PPE)",
+              "is_safety_critical": true,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-101-2",
+              "description": "Correct tool selection and physical condition verification (insulation check)",
+              "is_safety_critical": false,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-101-3",
+              "description": "Technique in stripping insulation without damaging the conductor core",
+              "is_safety_critical": false,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-101-4",
+              "description": "Workshop safety adherence, tool cleanup, and storage protocol",
+              "is_safety_critical": true,
+              "weight": 25,
+              "max_points": 5
+            }
+          ]
+        },
+        {
+          "code": "ACT-ELE-102",
+          "title": "Making Western Union and Married Joints in Copper Conductors",
+          "instructions": "Prepare single-strand copper cables, execute a Western Union joint with mechanical tension strength, and solder and insulate properly.",
+          "criteria": [
+            {
+              "code": "CRIT-102-1",
+              "description": "Cable insulation stripping and conductor burnishing",
+              "is_safety_critical": false,
+              "weight": 20,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-102-2",
+              "description": "Joint geometry, twist tight coupling, and tensile strength",
+              "is_safety_critical": false,
+              "weight": 30,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-102-3",
+              "description": "Soldering technique, flux application, and cooling without voids",
+              "is_safety_critical": true,
+              "weight": 30,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-102-4",
+              "description": "Insulation taping with 50% overlap and aesthetic finish",
+              "is_safety_critical": false,
+              "weight": 20,
+              "max_points": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "MOD-ELE-02",
+      "title": "Domestic Wiring and Electrical Circuits",
+      "sequence_no": 2,
+      "activities": [
+        {
+          "code": "ACT-ELE-201",
+          "title": "Staircase Wiring Circuit with Two-Way Switches",
+          "instructions": "Install and test a staircase lighting installation controlled from two independent locations using two 2-way switches and a lamp holder.",
+          "criteria": [
+            {
+              "code": "CRIT-201-1",
+              "description": "Wiring diagram interpretation and circuit layout marking on board",
+              "is_safety_critical": false,
+              "weight": 20,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-201-2",
+              "description": "Phase switch connection compliance (Phase wire connected to switch line)",
+              "is_safety_critical": true,
+              "weight": 35,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-201-3",
+              "description": "Pre-energization continuity and insulation resistance test with Megger",
+              "is_safety_critical": true,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-201-4",
+              "description": "Operational verification: two-way control operation from both stations",
+              "is_safety_critical": false,
+              "weight": 20,
+              "max_points": 5
+            }
+          ]
+        },
+        {
+          "code": "ACT-ELE-202",
+          "title": "Installation and Testing of Miniature Circuit Breakers (MCB) and RCCB",
+          "instructions": "Mount an MCB and Residual Current Circuit Breaker (RCCB) on DIN rail, wire distribution board, simulate earth leakage, and measure tripping time.",
+          "criteria": [
+            {
+              "code": "CRIT-202-1",
+              "description": "Mounting DIN rail and secure terminal clamping with correct torque",
+              "is_safety_critical": false,
+              "weight": 20,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-202-2",
+              "description": "Polarity and earthing busbar connections verified",
+              "is_safety_critical": true,
+              "weight": 30,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-202-3",
+              "description": "Test button operation and leakage current tripping trip verification",
+              "is_safety_critical": true,
+              "weight": 30,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-202-4",
+              "description": "Neat dressing of input and output cables inside distribution box",
+              "is_safety_critical": false,
+              "weight": 20,
+              "max_points": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "MOD-ELE-03",
+      "title": "AC Machines and Motor Starters",
+      "sequence_no": 3,
+      "activities": [
+        {
+          "code": "ACT-ELE-301",
+          "title": "Direct-On-Line (DOL) Starter Wiring for 3-Phase Squirrel Cage Motor",
+          "instructions": "Connect a 3-phase induction motor using a DOL starter with contactor, start/stop push buttons, and thermal overload relay.",
+          "criteria": [
+            {
+              "code": "CRIT-301-1",
+              "description": "Identification of motor terminal leads (U1, V1, W1, U2, V2, W2) and star connection",
+              "is_safety_critical": true,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-301-2",
+              "description": "Control circuit wiring (Stop push button, Start push button, auxiliary contact)",
+              "is_safety_critical": false,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-301-3",
+              "description": "Overload relay current rating calibration according to motor nameplate",
+              "is_safety_critical": true,
+              "weight": 25,
+              "max_points": 5
+            },
+            {
+              "code": "CRIT-301-4",
+              "description": "Direction of rotation test and motor running current measurement using clamp meter",
+              "is_safety_critical": false,
+              "weight": 25,
+              "max_points": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
