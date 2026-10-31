@@ -43,37 +43,37 @@ Initial status for all implementation tasks is **Not started**.
 
 ## Phase 2 — Authentication, scope and organization
 
-- [ ] **AUTH-01 [P0]** Create `users`, `roles` and `user_roles` migrations.
-- [ ] **AUTH-02 [P0]** Implement secure password hashing and login verification.
-- [ ] **AUTH-03 [P0]** Implement session creation, rotation, expiry and logout.
-- [ ] **AUTH-04 [P0]** Implement CSRF protection and exact CORS policy.
-- [ ] **AUTH-05 [P0]** Implement `GET /api/v1/auth/me` with role and scope information.
-- [ ] **AUTH-06 [P0]** Implement authorization policies for student, instructor and administrator.
-- [ ] **AUTH-07 [P0]** Add IDOR/cross-student/cross-batch access tests.
-- [ ] **ORG-01 [P0]** Create institute and department/trade migrations.
-- [ ] **ORG-02 [P0]** Create academic period and batch migrations.
-- [ ] **ORG-03 [P0]** Create student, instructor, enrollment and instructor assignment migrations.
-- [ ] **ORG-04 [P0]** Build administrator trade, academic period and batch screens.
-- [ ] **ORG-05 [P0]** Build student profile and enrollment management screens.
-- [ ] **ORG-06 [P0]** Build instructor profile and batch assignment screens.
-- [ ] **ORG-07 [P1]** Add account disable/reactivate workflow without deleting history.
-- [ ] **ORG-08 [P0]** Verify server-side institute/trade/batch scope on list and detail APIs.
+- [x] **AUTH-01 [P0]** Create `users`, `roles` and `user_roles` migrations.
+- [x] **AUTH-02 [P0]** Implement secure password hashing and login verification.
+- [x] **AUTH-03 [P0]** Implement session creation, rotation, expiry and logout.
+- [x] **AUTH-04 [P0]** Implement CSRF protection and exact CORS policy.
+- [x] **AUTH-05 [P0]** Implement `GET /api/v1/auth/me` with role and scope information.
+- [x] **AUTH-06 [P0]** Implement authorization policies for student, instructor and administrator.
+- [x] **AUTH-07 [P0]** Add IDOR/cross-student/cross-batch access tests.
+- [x] **ORG-01 [P0]** Create institute and department/trade migrations.
+- [x] **ORG-02 [P0]** Create academic period and batch migrations.
+- [x] **ORG-03 [P0]** Create student, instructor, enrollment and instructor assignment migrations.
+- [x] **ORG-04 [P0]** Build administrator trade, academic period and batch screens.
+- [x] **ORG-05 [P0]** Build student profile and enrollment management screens.
+- [x] **ORG-06 [P0]** Build instructor profile and batch assignment screens.
+- [x] **ORG-07 [P1]** Add account disable/reactivate workflow without deleting history.
+- [x] **ORG-08 [P0]** Verify server-side institute/trade/batch scope on list and detail APIs.
 
 ## Phase 3 — Sessions and attendance
 
-- [ ] **ATT-01 [P0]** Create training session migration and repository.
-- [ ] **ATT-02 [P0]** Implement create/list/update session endpoints with instructor scope checks.
-- [ ] **ATT-03 [P0]** Implement authoritative session roster query.
-- [ ] **ATT-04 [P0]** Create attendance records migration with unique `(session_id, student_id)` constraint.
-- [ ] **ATT-05 [P0]** Implement configurable attendance statuses.
-- [ ] **ATT-06 [P0]** Implement attendance draft/save workflow.
-- [ ] **ATT-07 [P0]** Implement register review and submission transaction.
-- [ ] **ATT-08 [P0]** Implement submitted-record correction with mandatory reason and audit event.
-- [ ] **ATT-09 [P0]** Build instructor attendance register responsive UI.
-- [ ] **ATT-10 [P0]** Build student attendance summary and session history.
-- [ ] **ATT-11 [P1]** Build authorized attendance filters and CSV report.
-- [ ] **ATT-12 [P0]** Test duplicates, missing marks, roster changes, cancelled sessions and correction history.
-- [ ] **ATT-13 [P0]** Obtain institute sign-off on attendance totals and percentage formula.
+- [x] **ATT-01 [P0]** Create training session migration and repository.
+- [x] **ATT-02 [P0]** Implement create/list/update session endpoints with instructor scope checks.
+- [x] **ATT-03 [P0]** Implement authoritative session roster query.
+- [x] **ATT-04 [P0]** Create attendance records migration with unique `(session_id, student_id)` constraint.
+- [x] **ATT-05 [P0]** Implement configurable attendance statuses.
+- [x] **ATT-06 [P0]** Implement attendance draft/save workflow.
+- [x] **ATT-07 [P0]** Implement register review and submission transaction.
+- [x] **ATT-08 [P0]** Implement submitted-record correction with mandatory reason and audit event.
+- [x] **ATT-09 [P0]** Build instructor attendance register responsive UI.
+- [x] **ATT-10 [P0]** Build student attendance summary and session history.
+- [x] **ATT-11 [P1]** Build authorized attendance filters and CSV report.
+- [x] **ATT-12 [P0]** Test duplicates, missing marks, roster changes, cancelled sessions and correction history.
+- [x] **ATT-13 [P0]** Obtain institute sign-off on attendance totals and percentage formula.
 
 ## Phase 4 — Activities and competency
 

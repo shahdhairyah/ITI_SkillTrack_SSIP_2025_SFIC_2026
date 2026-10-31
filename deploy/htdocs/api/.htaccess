@@ -1,0 +1,24 @@
+# ITI SkillTrack: API Directory Apache .htaccess Configuration
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /api/
+
+    # Ensure Authorization and custom headers reach PHP
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{HTTP:X-CSRF-Token} .
+    RewriteRule .* - [E=HTTP_X_CSRF_TOKEN:%{HTTP:X-CSRF-Token}]
+
+    # 1. Protect backend source, database, and configuration files
+    RewriteRule ^(?:src|database)(?:/|$) - [F,L]
+    RewriteRule ^(?:\.env|\.git) - [F,L]
+
+    # 2. Allow existing static files in api folder if any
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 3. Route all API requests to the PHP front controller
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>

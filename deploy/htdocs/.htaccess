@@ -1,0 +1,24 @@
+# ITI SkillTrack: Root Apache / .htaccess Configuration
+# Handles React SPA routing and delegates /api/ to PHP backend
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Ensure Authorization and custom headers reach PHP
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteCond %{HTTP:X-CSRF-Token} .
+    RewriteRule .* - [E=HTTP_X_CSRF_TOKEN:%{HTTP:X-CSRF-Token}]
+
+    # 1. Pass all /api requests directly to the api folder
+    RewriteRule ^api(/.*)?$ - [L]
+
+    # 2. Serve existing static files and directories directly
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # 3. React Router fallback for SPA client-side routes
+    RewriteRule ^ index.html [L]
+</IfModule>

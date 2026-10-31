@@ -1,0 +1,26 @@
+# ITI SkillTrack - Apache 2.4 VirtualHost Configuration Example
+# Place in /etc/apache2/sites-available/iti_skilltrack.conf and enable with 'a2ensite iti_skilltrack.conf'
+
+<VirtualHost *:80>
+    ServerName example.com
+    ServerAlias www.example.com
+    DocumentRoot /var/www/iti_skilltrack/htdocs
+
+    <Directory /var/www/iti_skilltrack/htdocs>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    # Protect internal API source and database directories
+    <Directory /var/www/iti_skilltrack/htdocs/api/src>
+        Require all denied
+    </Directory>
+    <Directory /var/www/iti_skilltrack/htdocs/api/database>
+        Require all denied
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/iti_skilltrack_error.log
+    CustomLog ${APACHE_LOG_DIR}/iti_skilltrack_access.log combined
+</VirtualHost>
+
