@@ -1,124 +1,245 @@
 # ITI SkillTrack
-Digital Skill Training, Attendance and Competency Tracking System for ITI Students
+> **Digital Skill Training, Attendance, and Practical Competency Tracking System for Industrial Training Institutes (ITIs)**  
+> *Craftsmen Training Scheme (CTS) · National Skills Qualification Framework (NSQF Level 4/5)*
 
-## Documentation & Architecture
-Full architecture, design specifications, requirements, and policy documents are located in [`docs/`](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/README.md):
-- [Product Requirements Document (PRD)](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/prd.md)
-- [System Architecture](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/architectre.md)
-- [UI/UX Design Specification](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/desgin.md)
-- [Product, Business & Engineering Rules](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/rules.md)
-- [Implementation Phases & Delivery Gates](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/phase.md)
-- [Implementation Backlog Tasks](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/tasks.md)
-- [Project Memory & Core Invariants](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/docs/memory.md)
+[![Stack](https://img.shields.io/badge/Stack-React_19_+_PHP_8.3_+_MySQL_8-blue.svg)](https://github.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Phases_Completed-Phase_0_to_5_Verified-success.svg)](docs/tasks.md)
+[![Zero Docker](https://img.shields.io/badge/Dependency-Zero_Docker_Required-brightgreen.svg)](#production-deployment--quick-start)
 
 ---
 
-## Current Status: Phase 5 Completed & Verified (Native React + PHP + MySQL)
-*Zero Docker dependencies required.*
+## 📸 System Screenshots & UI Walkthrough
 
-### Phase 1: Foundation & Project Setup (Done)
-- React 19 SPA + PHP 8.3 REST API + MySQL / SQLite PDO abstraction.
-- API envelope (`status`, `data`, `meta`), CORS, error handling, health checks.
+### 1. Home Page & Practical Registry Overview
+![ITI SkillTrack Home Page](docs/screenshots/home_page.png)
+*Modern, high-contrast portal showcasing institutional statutory metrics, DEC-05 competency rubrics, training lifecycle, and pre-seeded role workspaces.*
 
-### Phase 2: Authentication, Roles & Institute Master Data (Done)
-- Role-Based Access Control (RBAC): `administrator`, `instructor`, `student`, `monitoring_officer`.
-- HTTP-only session cookies, CSRF protection, Bcrypt hashing.
-- Server-side record scope and IDOR prevention.
-- Management of Trades, Academic Periods, Batches, Students, and Instructors.
+### 2. Zero-Scroll Authentication & Instant Role Selection
+![ITI SkillTrack Login Page](docs/screenshots/login_page.png)
+*Single-viewport, zero-scroll login card featuring 1-click test credentials for Administrator, Vocational Instructor, and Student Trainee.*
 
-### Phase 3: Training Sessions & Attendance Tracking (Done & Verified)
-- **Session Scheduling (ATT-01/02):** Practical labs, theory classes, workshops with batch, date, topic, time.
-- **Authoritative Roster (ATT-03):** Dynamic enrollment queries as of session date.
-- **Draft & Submission Workflow (ATT-05/06/07):** Live draft saving with partial marks, missing marks validation.
-- **Controlled Corrections (ATT-08):** Modifying submitted registers mandates reasons ($\ge 10$ chars), logs to append-only `audit_logs` table.
-- **Attendance Percentage Formula (ATT-10/DEC-03):**
-  $$\text{Attendance } \% = \frac{\text{Count}(\text{present}) + \text{Count}(\text{late})}{\text{Total Applicable Sessions} - \text{Count}(\text{excused})} \times 100$$
-- **Statutory 80% Threshold:** Automatic eligibility badge (`ELIGIBLE FOR EXAM` vs `ATTENDANCE WARNING (<80%)`).
+### 3. Vocational Training Dashboard & Competency Overview
+![ITI SkillTrack Dashboard](docs/screenshots/dashboard_preview.png)
+*Role-scoped workspace showing live session rosters, attendance percentage with the statutory 80% practical exam gate, and remedial task queues.*
 
-### Phase 4: Practical Activities & Competency Assessment (Done & Verified)
-- **Trade Curriculum & Modules (SKILL-01/02/03):** Structured Trade -> Modules -> Practical Activities hierarchy.
-- **Authoritative Rubric Versioning (DEC-05):** 0–5 criterion scale with mandatory safety-critical gates.
-- **DEC-05 Competency Rule:** Evaluated as `Competent` only if:
+---
+
+## 🎯 Project Overview & Vision
+
+**ITI SkillTrack** is a centralized digital record and monitoring platform engineered specifically for **Industrial Training Institutes (ITIs)**. It replaces paper attendance sheets, lost logbooks, and detached spreadsheets with an authoritative single source of truth.
+
+The platform directly enforces real-world vocational invariants:
+1. **Authoritative Session-Wise Attendance:** Tracks attendance per scheduled workshop lab, theory session, and practical block rather than generic daily tallies.
+2. **Statutory 80% Practical Exam Gate:** Automatically calculates trainees' practical attendance percentage against the mandated 80% benchmark required to qualify for semester examinations.
+3. **DEC-05 Objective Competency Rubrics:** Evaluates hands-on workshop attempts on a 0–5 criterion scale with **mandatory safety gates** ($\ge 4/5$) and a $75\%$ aggregate passing requirement.
+4. **Supervised Remedial Workflows:** Automatically routes trainees who fail safety or benchmark criteria into supervised remedial practice with instructor resolution reviews.
+5. **Strict Server-Side Scoping (IDOR Prevention):** Guarantees instructors view only their assigned trades/batches, and trainees view only their personal evaluations.
+
+---
+
+## 🏗️ Architecture & Technology Stack
+
+The project is built as a **secure modular monolith** with zero container or Docker dependencies, running on any standard Apache, Nginx, or cPanel hosting environment.
+
+```
+                           ┌───────────────────────────┐
+                           │   React 19 SPA (Vite)     │
+                           │   Tailwind-Tokens & Icons │
+                           └─────────────┬─────────────┘
+                                         │ JSON REST API
+                                         ▼
+                           ┌───────────────────────────┐
+                           │   PHP 8.3 Custom REST API │
+                           │  PSR-4 Autoload / Routers │
+                           └─────────────┬─────────────┘
+                                         │ PDO Prepared Statements
+                                         ▼
+                     ┌───────────────────┴───────────────────┐
+                     │                                       │
+            ┌────────▼────────┐                     ┌────────▼────────┐
+            │   MySQL 8.x     │                     │  SQLite (Zero   │
+            │  (Production)   │                     │  Config Dev)    │
+            └─────────────────┘                     └─────────────────┘
+```
+
+* **Frontend:** React 19 SPA (Vite), React Router v7, Lucide Icons, pure CSS design tokens.
+* **Backend:** PHP 8.3 REST API with custom micro-router, CSRF middleware, session security, and structured JSON envelopes (`status`, `data`, `meta`).
+* **Database Abstraction:** Dual-driver PDO architecture supporting **MySQL 8.x / MariaDB** (Production) and **SQLite 3** (Instant Zero-Config Testing) out-of-the-box.
+* **Storage:** Private, access-controlled directory (`backend/storage/private_uploads/`) for practical exercise evidence and rubric documentation.
+
+---
+
+## 🚀 Completed Phases & Deliverables
+
+All tasks from **Phase 0 through Phase 5** are fully implemented, verified against automated test suites, and packaged.
+
+### **Phase 0 — Discovery & Institutional Policy Confirmation (Done)**
+- [x] Confirmed single-institute deployment with multi-tenant architecture ([`01_policy_decision_register.md`](file:///home/shahdhairyah/Projects/ITI_SkillTrack_SSIP_2025_SFIC_2026/docs/phase-0/01_policy_decision_register.md) DEC-01).
+- [x] Defined session-wise attendance tracking unit and 80% statutory practical threshold (DEC-02 / DEC-03).
+- [x] Standardized 3-tier competency scale (`competent`, `needs_practice`, `not_attempted`) with mandatory safety benchmark (DEC-05).
+- [x] Selected **ITI Electrician Trade (NSQF Level 4)** and Batch **EL-2026-A** as the model pilot cohort.
+
+### **Phase 1 — Foundation & Project Setup (Done)**
+- [x] React 19 client + PHP REST API skeleton with unified response/error envelope (`BASE-01` to `BASE-08`).
+- [x] PDO connection manager with automatic fallback between MySQL and SQLite (`Database.php`).
+- [x] Health check endpoints (`GET /api/v1/health`) and CORS middleware.
+
+### **Phase 2 — Authentication, Roles & Institute Master Data (Done)**
+- [x] Role-Based Access Control (RBAC): `administrator`, `instructor`, `student`, `monitoring_officer`.
+- [x] Secure session cookies, CSRF tokens, Bcrypt password hashing (`AUTH-01` to `AUTH-05`).
+- [x] Management screens and APIs for Trades, Academic Periods, Batches, Students, and Instructors (`ORG-01` to `ORG-08`).
+- [x] IDOR protection and server-enforced record scoping.
+
+### **Phase 3 — Training Sessions & Attendance Tracking (Done)**
+- [x] Session scheduling with batch, instructor, date, and time blocks (`ATT-01` / `ATT-02`).
+- [x] Authoritative session roster generation as of session date (`ATT-03`).
+- [x] Draft saving with missing-mark validation and official submission locking (`ATT-06` / `ATT-07`).
+- [x] Controlled corrections workflow requiring mandatory reason ($\ge 10$ chars) and append-only audit logging (`ATT-08`).
+- [x] Approved attendance calculation formula:
+  $$\text{Attendance } \% = \frac{\text{Count}(\text{present}) + \text{Count}(\text{late})}{\text{Total Sessions} - \text{Count}(\text{excused})} \times 100$$
+- [x] Batch matrix attendance reports with formula-injection-sanitized CSV exports (`ATT-11`).
+
+### **Phase 4 — Practical Activities & Competency Assessment (Done)**
+- [x] Trade curriculum catalog: `Trade -> Modules -> Practical Activities -> Rubric Criteria` (`SKILL-01` to `SKILL-03`).
+- [x] Authoritative 0–5 criterion rubric scoring with safety-critical gates (`SKILL-05` / `SKILL-06`).
+- [x] **DEC-05 Completion Invariant:** Trainee is marked `Competent` only if:
   1. All mandatory safety criteria are scored $\ge 4/5$.
   2. Total aggregate percentage is $\ge 75\%$.
-- **Attempt & Evaluation Engine (SKILL-04 to SKILL-08):** Multi-attempt tracking (`attempt_no`), criterion results table, instructor feedback, and transaction-safe submissions.
-- **Batch Competency Matrix UI:** Live student-vs-activities progress grid for instructors and admins.
+- [x] Multi-attempt tracking (`attempt_no`), criterion breakdown, and assessor feedback (`SKILL-08`).
+- [x] Live Batch Competency Matrix grid comparing all trainees against trade activities.
 
-### Phase 5: Remedial Support & Dashboards (Done & Verified)
-- **Personalized Remedial Tracking (REM-01 to REM-05):** Automatic and manual remedial assignment when a trainee fails safety or benchmark scores.
-- **Structured Review Flow:** Instructor review outcome, notes, and state transitions (`assigned`, `in_progress`, `completed`, `cancelled`).
-- **Student Portfolio UI (SKILL-09 / REM-04):** Dedicated trainee view with competency breakdown, criterion scores, and remedial tasks.
-- **Role Dashboards:** Integrated live statistics for Administrator, Instructor, and Student portals.
-
----
-
-## Production Deployment Package (`deploy/` & `iti_skilltrack_deploy.zip`)
-
-A complete production deployment bundle is generated in [`deploy/`](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/deploy/README.md) and packaged as `iti_skilltrack_deploy.zip`:
-
-- **`deploy/htdocs/`**: Production frontend assets (`index.html`, `assets/`) and backend REST API (`api/`) ready to upload directly into the server's web root (`htdocs` or `public_html`).
-- **`deploy/htdocs/.htaccess` & `api/.htaccess`**: Automatic SPA fallback for React Router and secure routing for `/api/...`.
-- **Zero-Config Instant Launch**: Includes a pre-seeded SQLite database (`htdocs/api/database/iti_skilltrack.sqlite`), allowing instant login upon upload without immediate database configuration.
-- **Production MySQL Dump**: [`deploy/database/iti_skilltrack_full.sql`](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/deploy/database/iti_skilltrack_full.sql) contains all 26 tables, Phase 3 columns, and pilot seed accounts for 1-click phpMyAdmin import.
-- **Server Blocks**: Includes [`deploy/nginx.conf.example`](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/deploy/nginx.conf.example) and [`deploy/apache.vhost.example`](file:///home/shahdhairyah/Downloads/ITI%20SkillTrack%20SSIP-2026/deploy/apache.vhost.example).
+### **Phase 5 — Remedial Support & Consolidated Dashboards (Done)**
+- [x] Automatic and manual remedial task generation upon benchmark or safety failure (`REM-01` / `REM-02`).
+- [x] Instructor review modal recording resolution outcome, notes, and state transitions (`assigned`, `in_progress`, `completed`, `cancelled`).
+- [x] Trainee Skills & Competency Portfolio (`/student/skills`) detailing passed rubrics and active remedial tasks.
+- [x] Role-specific dashboards for **Administrator**, **Vocational Trainer**, and **Student Trainee**.
 
 ---
 
-## Quick Start (No Docker Required)
+## ⚡ Quick Start & Local Setup
 
-### 1. Database Setup & Migration
-Runs against local MySQL/MariaDB or local development database:
-```bash
-# Apply schema baseline, Phase 3 migrations, and pilot seed data
-php backend/database/migrate.php
-```
+### Prerequisites
+* **Node.js** (v18+) & **npm**
+* **PHP** (v8.1+) with `pdo_sqlite` and `pdo_mysql` extensions enabled.
+* *(Optional)* MySQL 8.x or MariaDB.
 
-### 2. Start PHP Backend API
+### 1. Clone Repository & Install Frontend Dependencies
 ```bash
-# Starts built-in PHP server on port 8000
-php -S 127.0.0.1:8000 -t backend/public
-```
+git clone https://github.com/shahdhairyah/ITI_SkillTrack_SSIP_2025_SFIC_2026.git
+cd ITI_SkillTrack_SSIP_2025_SFIC_2026
 
-### 3. Start Frontend (React + Vite)
-```bash
+# Install React dependencies
 cd frontend
 npm install
-npm run dev
 ```
-Open **http://127.0.0.1:5173** in your browser.
 
-To produce a production build:
+### 2. Launch Local Development Server
+Open two terminal windows:
+
+**Terminal 1: Start Backend API (Built-in PHP Server with Zero-Config SQLite)**
+```bash
+cd backend
+php -S 127.0.0.1:8000 public/index.php
+```
+
+**Terminal 2: Start React Frontend**
 ```bash
 cd frontend
-npm run build
+npm run dev
 ```
+Open **`http://localhost:5173`** in your browser.
 
 ---
 
-## Automated Test Suites (44 Tests, 100% Passing)
+## 🔑 Pre-Seeded Pilot Accounts
 
-Run the full suite of automated unit, integration, security, and policy tests:
-```bash
-# 1. Health & Architecture Test
-php backend/tests/HealthTest.php
+The database comes pre-populated with pilot data for **Electrician Trade (ELE-01)**, Batch **EL-2026-A**.
 
-# 2. Phase 2 Auth, Role & Scope Test (IDOR, Cross-batch denial)
-php backend/tests/AuthAndScopeTest.php
-
-# 3. Phase 3 Sessions, Attendance & Policy Formula Test
-php backend/tests/AttendanceTest.php
-```
-
----
-
-## Seed Demo User Accounts
-All pilot test accounts have password: **`Password@123`**
-
-| Role | Username / Identity | Email | Scope |
+| Role | Email / Username | Password | Access Scope |
 |---|---|---|---|
-| **Administrator** | `admin` | `admin@itiskilltrack.org` | Full Institute Access |
-| **Instructor** | `instructor` | `rajesh.sharma@itiskilltrack.org` | Assigned Batch: `EL-2026-A` |
-| **Student (Trainee 1)** | `student` | `amit.kumar@student.iti.org` | Personal Record (Eligible, 100%) |
-| **Student (Trainee 2)** | `priya` | `priya.verma@student.iti.org` | Personal Record |
-| **Student (Trainee 3)** | `rahul` | `rahul.singh@student.iti.org` | Personal Record (Attendance Warning) |
-# ITI_SkillTrack_SSIP_2025_SFIC_2026
+| **Institute Administrator** | `admin@itiskilltrack.org` | `Password@123` | Full institute governance, trades, batches, users, and audit logs |
+| **Vocational Instructor** | `rajesh.sharma@itiskilltrack.org` | `Password@123` | Assigned batch EL-2026-A: session registers, practical rubrics, remedial queue |
+| **Student Trainee (Amit)** | `amit.kumar@student.iti.org` | `Password@123` | Personal profile, attendance (92.5%), exam eligibility, verified practical portfolio |
+| **Student Trainee (Rahul)** | `rahul.singh@student.iti.org` | `Password@123` | Trainee with open remedial assignment (Wire Stripping & PPE Safety Gap) |
+
+*You can also click any of the **Quick Test Accounts** directly on the sign-in page to autofill credentials instantly.*
+
+---
+
+## 📦 Production Deployment Package (`deploy/` & `.zip`)
+
+A complete production deployment bundle is generated in [`deploy/`](deploy/README.md) and packaged as **`iti_skilltrack_deploy.zip`**:
+
+### Deployment Bundle Structure
+* **`deploy/htdocs/`**: Production frontend assets (`index.html`, `assets/`) and backend REST API (`api/`) ready to upload directly into the server's public root (`htdocs` or `public_html`).
+* **`deploy/htdocs/.htaccess` & `api/.htaccess`**: Automatic SPA fallback for React Router and secure routing for `/api/...`.
+* **Zero-Config Instant Launch:** Includes a pre-seeded SQLite database (`htdocs/api/database/iti_skilltrack.sqlite`), allowing instant login upon upload without immediate database configuration.
+* **Production MySQL Dump:** [`deploy/database/iti_skilltrack_full.sql`](deploy/database/iti_skilltrack_full.sql) contains all 27 tables, Phase 1–5 columns, and pilot seed accounts for 1-click phpMyAdmin import.
+* **Server Configurations:** Includes example virtual host configs for **Nginx** ([`deploy/nginx.conf.example`](deploy/nginx.conf.example)) and **Apache** ([`deploy/apache.vhost.example`](deploy/apache.vhost.example)).
+
+### 1-Click Upload Instructions (cPanel / Apache / Nginx)
+1. Upload and extract `iti_skilltrack_deploy.zip` into your web server document root (e.g. `/var/www/html` or `public_html`).
+2. *(Optional MySQL configuration)*: Import `deploy/database/iti_skilltrack_full.sql` into MySQL and configure `.env`:
+   ```ini
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=iti_skilltrack
+   DB_USERNAME=iti_user
+   DB_PASSWORD=your_password
+   ```
+3. Navigate to your server domain or IP address in your browser.
+
+---
+
+## 📂 Project Directory Structure
+
+```
+├── backend/
+│   ├── database/
+│   │   ├── migrations/          # 001_initial, 002_attendance, 003_competency
+│   │   ├── seeds/               # Pilot seed data for Electrician batch
+│   │   └── iti_skilltrack_full.sql # Unified MySQL 8.x schema dump
+│   ├── public/
+│   │   └── index.php            # Front controller and router entry point
+│   ├── src/
+│   │   ├── Controllers/         # Auth, Attendance, Competency, Remedial, Org
+│   │   ├── Middleware/          # Auth, Role, CSRF, CORS, Request ID
+│   │   ├── Services/            # Business logic, DEC-05 rules, DB abstraction
+│   │   └── Support/             # Router, JSON Response Envelope
+│   └── storage/
+│       └── private_uploads/     # DEC-08 access-checked practical evidence files
+├── frontend/
+│   ├── public/                  # Favicons, SVG icons
+│   ├── src/
+│   │   ├── components/          # PageHeader, StatCard, Badge, Button, Modal
+│   │   ├── features/
+│   │   │   ├── attendance/      # SessionsPage, AttendanceRegister, Report
+│   │   │   ├── auth/            # LoginPage (Zero-scroll design)
+│   │   │   ├── competency/      # CurriculumPage, AssessmentWorkspace, StudentSkills
+│   │   │   ├── dashboard/       # AdminDashboard, InstructorDashboard, StudentDashboard
+│   │   │   ├── home/            # HomePage (Institutional portal layout)
+│   │   │   ├── organization/    # Trades, Periods, Batches, Settings
+│   │   │   └── remedial/        # RemedialSupportPage (Task queue & review)
+│   │   └── lib/                 # API client, date & string formatters
+├── deploy/                      # Production-ready web root & database dump
+├── docs/                        # Architecture, PRD, tasks, policy registers
+└── iti_skilltrack_deploy.zip    # Pre-packaged production deployment zip
+```
+
+---
+
+## 📜 Invariants & Institutional Business Rules
+
+* **Uniqueness:** An attendance record is strictly unique for `(session_id, student_id)`.
+* **Missing Marks:** A missing mark is **not** automatically assumed to be Present; it must be resolved before submission.
+* **Audit Trail:** Corrections submitted after official lock require a reason ($\ge 10$ characters) and log to `audit_logs`.
+* **DEC-05 Safety Rule:** A practical evaluation cannot receive `Competent` if any safety criterion scores below $4/5$.
+* **Data Isolation:** Disabled accounts preserve historical practical evidence without leaking authorization.
+
+---
+
+## 👥 Contributors & SSIP 2025 SFIC 2026 Initiative
+
+Developed for the **Student Startup and Innovation Policy (SSIP 2025)** / **Smart Future Innovation Challenge (SFIC 2026)** to modernize technical vocational training records across Industrial Training Institutes.
