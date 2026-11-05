@@ -27,13 +27,14 @@ export default function StudentDashboard() {
   const studentId = user?.profile?.student_id;
 
   const { data, loading, error, reload } = useApiResource(async () => {
-    if (!studentId) return { student: null, batch: null, attendance: null };
-    const [student, attendance] = await Promise.all([
+    if (!studentId) return { student: null, batch: null, attendance: null, competency: null };
+    const [student, attendance, competency] = await Promise.all([
       api.get(`/students/${studentId}`),
       api.get(`/students/${studentId}/attendance`).catch(() => null),
+      api.get(`/students/${studentId}/competency`).catch(() => null),
     ]);
     const batch = student?.batch_id ? await api.get(`/batches/${student.batch_id}`).catch(() => null) : null;
-    return { student, batch, attendance };
+    return { student, batch, attendance, competency };
   }, [studentId]);
 
   if (loading) return <Loader label="Loading your trainee profile…" />;
@@ -42,7 +43,9 @@ export default function StudentDashboard() {
   const student = data?.student;
   const batch = data?.batch;
   const attendance = data?.attendance;
+  const competency = data?.competency;
   const attSummary = attendance?.summary;
+  const compSummary = competency?.summary;
   const percentage = attSummary?.attendance_percentage ?? null;
   const isEligible = attSummary?.eligible;
   const threshold = attSummary?.threshold_percentage || 80.0;
@@ -70,18 +73,25 @@ export default function StudentDashboard() {
 
       <div className="stat-grid stat-grid-4 mb-6">
         <StatCard
+          label="Practical Competencies"
+          value={`${compSummary?.competent_count ?? 0} / ${compSummary?.total_activities ?? 0}`}
+          hint={`${compSummary?.completion_percentage ?? 0}% Trade Practical Syllabus`}
+          icon={Award}
+          tone="green"
+        />
+        <StatCard
           label="Practical Attendance"
           value={percentage !== null ? `${percentage}%` : 'N/A'}
           hint={isEligible ? `Cleared (≥${threshold}%)` : `Under ${threshold}% Target`}
-          icon={Award}
+          icon={CalendarDays}
           tone={isEligible ? 'green' : percentage !== null ? 'amber' : 'blue'}
         />
         <StatCard
-          label="Enrollment Status"
-          value={toTitleCase(activeEnrollment?.status || student?.enrollment_status || 'Active')}
-          hint={activeEnrollment ? `Since ${formatDate(activeEnrollment.starts_on)}` : 'Active Trainee'}
-          icon={ClipboardList}
-          tone="green"
+          label="Active Remedials"
+          value={compSummary?.active_remedials_count ?? 0}
+          hint={compSummary?.active_remedials_count > 0 ? 'Follow-up practice assigned' : 'All skills on track'}
+          icon={CheckCircle2}
+          tone={compSummary?.active_remedials_count > 0 ? 'amber' : 'green'}
         />
         <StatCard
           label="Assigned Batch"
@@ -89,13 +99,6 @@ export default function StudentDashboard() {
           hint={student?.batch_name ? `Section ${student.batch_section} · ${toTitleCase(student.batch_shift)} shift` : 'Awaiting batch allocation'}
           icon={BookOpen}
           tone="blue"
-        />
-        <StatCard
-          label="Vocational Trade"
-          value={student?.trade_name || '—'}
-          hint={student?.trade_code || 'Not assigned'}
-          icon={CalendarDays}
-          tone="violet"
         />
       </div>
 

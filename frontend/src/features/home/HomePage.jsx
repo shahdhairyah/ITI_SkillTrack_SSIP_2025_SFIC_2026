@@ -1,145 +1,219 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
   Award,
-  BadgeCheck,
-  BarChart3,
   BookOpen,
-  Building2,
   CalendarCheck2,
   CheckCircle2,
-  ChevronRight,
-  ClipboardCheck,
-  Database,
+  ClipboardList,
+  FileCheck2,
   GraduationCap,
+  Layers,
   Presentation,
+  ShieldAlert,
   ShieldCheck,
-  Smartphone,
-  Sparkles,
+  TrendingUp,
+  UserCheck,
   UserCog,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { roleHome } from '../../lib/format';
 
-const FEATURES = [
+const STATS_DATA = [
+  { value: '100%', title: 'Session-Wise Rosters', desc: 'Authoritative enrollment verification per date' },
+  { value: '≥ 80%', title: 'Statutory Exam Gate', desc: 'Direct eligibility check before final practical exams' },
+  { value: 'DEC-05', title: 'Competency Rubrics', desc: 'Mandatory safety benchmarks (≥4/5) and 75% aggregate' },
+  { value: '48h', title: 'Audit-Controlled Edits', desc: 'Submitted records require reason & log to audit table' },
+];
+
+const MODULE_WORKFLOW = [
   {
+    step: '1',
+    title: 'Trades & Batch Rosters',
+    desc: 'Institute sets up Electrician trade, academic period, section shifts, and enrolls trainees with admission numbers.',
+    icon: BookOpen,
+  },
+  {
+    step: '2',
+    title: 'Training Sessions & Labs',
+    desc: 'Instructors schedule workshop sessions, take digital attendance draft, and review counts before locking register.',
     icon: CalendarCheck2,
-    tone: 'blue',
-    title: 'Attendance registers',
-    body: 'Session rosters with clear statuses, review-before-submit and scope-aware corrections.',
   },
   {
-    icon: ClipboardCheck,
-    tone: 'violet',
-    title: 'Practical assessments',
-    body: 'Criterion-based rubrics, evidence notes and a complete history for every attempt.',
+    step: '3',
+    title: 'Hands-on Rubric Assessment',
+    desc: 'Trainees perform practical exercises evaluated across 0-5 criteria with strict zero-tolerance for safety misses.',
+    icon: Award,
   },
   {
-    icon: BadgeCheck,
-    tone: 'green',
-    title: 'Competency progress',
-    body: 'Know what is demonstrated, in progress or needs practice — always backed by evidence.',
-  },
-  {
-    icon: Building2,
-    tone: 'amber',
-    title: 'Institute administration',
-    body: 'Trades, batches, academic periods, users and audit history in one operational view.',
+    step: '4',
+    title: 'Remedial Support & Portfolio',
+    desc: 'Automated remedial follow-up for trainees needing extra practice, with instructor outcome verification.',
+    icon: UserCheck,
   },
 ];
 
-const ROLES = [
-  {
+const ROLE_TABS = {
+  student: {
+    label: 'Student Trainee',
+    headline: 'Follow your training journey with full transparency',
+    sub: 'Trainees can verify attendance marks, view instructor assessment comments, and practice remedial tasks.',
     icon: GraduationCap,
-    tone: 'blue',
-    title: 'For students',
-    body: 'Follow your own training journey without noise from other records.',
-    points: ['Attendance and competency snapshot', 'Assessment feedback and next steps', 'Remedial practice deadlines'],
+    points: [
+      'Live practical attendance percentage with exam eligibility warning',
+      'Detailed criterion scores and safety feedback for every practical attempt',
+      'Clear remedial practice guidelines and deadlines assigned by trainer',
+      'Verified digital competency record ready for apprenticeship applications',
+    ],
+    demoAccount: 'amit.kumar@student.iti.org',
+    demoRole: 'Amit Kumar · Roll ADM-2026-001 (Electrician EL-2026-A)',
+    linkText: 'Open Student Portal',
   },
-  {
-    icon: Presentation,
-    tone: 'violet',
-    title: 'For instructors',
-    body: 'Run assigned batches with fast attendance entry and practical assessment.',
-    points: ['Batch-scoped student rosters', 'Review-before-submit attendance', 'Criterion-level assessment workflow'],
+  instructor: {
+    label: 'Vocational Trainer',
+    headline: 'Manage workshops and evaluate practical skills efficiently',
+    sub: 'Vocational instructors manage session rosters, enter draft marks, submit registers, and assess rubrics.',
+    icon: Users,
+    points: [
+      'Auto-populated rosters dynamically generated as of session date',
+      'Draft saving with missing-mark verification before official lock',
+      'Batch competency matrix showing practical progress across all students',
+      'One-click remedial assignment for safety gaps with resolution review',
+    ],
+    demoAccount: 'rajesh.sharma@itiskilltrack.org',
+    demoRole: 'Rajesh Sharma · Lead Instructor (Electrical Engg + CITS)',
+    linkText: 'Open Instructor Hub',
   },
-  {
-    icon: UserCog,
-    tone: 'green',
-    title: 'For administrators',
-    body: 'Set up the institute, manage access and monitor training quality.',
-    points: ['Users, roles and permissions', 'Institute master data', 'Reports and audit history'],
+  admin: {
+    label: 'Institute Administrator',
+    headline: 'Oversee institutional compliance and academic master data',
+    sub: 'Administrators configure trades, batches, roles, and export sanitized reports for directorate audits.',
+    icon: ShieldCheck,
+    points: [
+      'Manage trades, departments, academic periods, batches, and users',
+      'Server-scoped access preventing cross-batch and cross-institute leaks',
+      'Immutable audit trail recording every attendance correction with reasons',
+      'Standardized CSV exports with formula injection protection',
+    ],
+    demoAccount: 'admin@itiskilltrack.org',
+    demoRole: 'Administrator · Model Industrial Training Institute',
+    linkText: 'Open Admin Console',
   },
-];
-
-const STEPS = [
-  {
-    title: 'Set up the institute',
-    body: 'Configure trades, modules, academic periods and batches for the current session.',
-  },
-  {
-    title: 'Enroll learners and trainers',
-    body: 'Create accounts, enroll students and assign instructors to their batches.',
-  },
-  {
-    title: 'Run everyday training',
-    body: 'Capture attendance and practical assessments from desktop, tablet or phone.',
-  },
-  {
-    title: 'Review progress',
-    body: 'Track competency evidence, follow up remedial work and export training reports.',
-  },
-];
-
-const PREVIEW_STATS = [
-  { label: 'Students', value: '240' },
-  { label: 'Batches', value: '08' },
-  { label: 'Attendance', value: '92%' },
-];
-
-const PREVIEW_ROWS = [
-  { initials: 'AK', name: 'Amit Kumar', detail: 'Electrician · EL-2026-A', status: 'Present', tone: 'green' },
-  { initials: 'PS', name: 'Priya Singh', detail: 'Electrician · EL-2026-A', status: 'Pending', tone: 'amber' },
-  { initials: 'RV', name: 'Rahul Verma', detail: 'Electrician · EL-2026-A', status: 'Present', tone: 'green' },
-];
+};
 
 export default function HomePage() {
   const { user } = useAuth();
   const dashboardPath = user ? roleHome(user.role) : '/login';
-  const primaryLabel = user ? 'Open dashboard' : 'Sign in to workspace';
+  const primaryLabel = user ? 'Open My Workspace' : 'Sign In to Workspace';
+
+  const [activeTabKey, setActiveTabKey] = useState('student');
+  const activeRole = ROLE_TABS[activeTabKey];
 
   return (
-    <div className="landing-page">
-      <header className="landing-nav">
-        <div className="landing-nav-inner">
-          <Link to="/" className="landing-brand" aria-label="ITI SkillTrack home">
-            <span className="logo-badge">ST</span>
-            <span className="landing-brand-text">
-              <strong>ITI SkillTrack</strong>
-              <span>Institute training workspace</span>
-            </span>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#f8fafc',
+        color: '#0f172a',
+        fontFamily: "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+      }}
+    >
+      {/* 1. CLEAN NAVIGATION BAR */}
+      <header
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 40,
+          background: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          padding: '14px 28px',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+            <div
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '7px',
+                background: '#2563eb',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '0.95rem',
+              }}
+            >
+              ST
+            </div>
+            <div>
+              <strong style={{ fontSize: '1.05rem', color: '#0f172a', display: 'block', lineHeight: 1.15 }}>
+                ITI SkillTrack
+              </strong>
+              <span style={{ fontSize: '0.68rem', color: '#64748b' }}>
+                Vocational Training & Attendance
+              </span>
+            </div>
           </Link>
 
-          <nav className="landing-nav-links" aria-label="Home page sections">
-            <a href="#features">Features</a>
-            <a href="#roles">Roles</a>
-            <a href="#workflow">How it works</a>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <a href="#overview" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textDecoration: 'none' }}>
+              Overview
+            </a>
+            <a href="#rubrics" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textDecoration: 'none' }}>
+              Rubric Policy
+            </a>
+            <a href="#roles" style={{ fontSize: '0.85rem', fontWeight: 600, color: '#475569', textDecoration: 'none' }}>
+              Role Workspaces
+            </a>
           </nav>
 
-          <div className="landing-nav-actions">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             {user ? (
-              <Link to={dashboardPath} className="btn btn-primary">
-                Open dashboard
-                <ArrowRight size={15} />
+              <Link to={dashboardPath} className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                Open Dashboard <ArrowRight size={14} />
               </Link>
             ) : (
               <>
-                <Link to="/login" className="landing-signin-link">
-                  Sign in
+                <Link
+                  to="/login"
+                  style={{
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    color: '#334155',
+                    textDecoration: 'none',
+                    padding: '8px 12px',
+                  }}
+                >
+                  Sign In
                 </Link>
-                <Link to="/login" className="btn btn-primary">
-                  Get started
-                  <ArrowRight size={15} />
+                <Link
+                  to="/login"
+                  style={{
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  Open Pilot <ArrowRight size={14} />
                 </Link>
               </>
             )}
@@ -148,282 +222,637 @@ export default function HomePage() {
       </header>
 
       <main>
-        <section className="landing-hero">
-          <div className="landing-hero-inner">
-            <div className="landing-hero-copy">
-              <span className="landing-kicker">
-                <Sparkles size={14} />
-                Built for industrial training institutes
-              </span>
-              <h1>
-                Training records that keep every learner <span>on track.</span>
+        {/* 2. HERO: Institutional, Clean, High Contrast (No floating futuristic glow or fake sci-fi elements) */}
+        <section
+          style={{
+            background: '#ffffff',
+            borderBottom: '1px solid #e2e8f0',
+            padding: '64px 28px 72px',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
+              gap: '48px',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  fontSize: '0.74rem',
+                  fontWeight: 600,
+                  background: '#eff6ff',
+                  color: '#1d4ed8',
+                  border: '1px solid #dbeafe',
+                  marginBottom: '16px',
+                }}
+              >
+                <span>National Skills Qualification Framework (NSQF Level 4/5)</span>
+              </div>
+
+              <h1
+                style={{
+                  fontSize: 'clamp(2.1rem, 3.8vw, 3.1rem)',
+                  fontWeight: 800,
+                  letterSpacing: '-0.035em',
+                  lineHeight: 1.18,
+                  color: '#0f172a',
+                  margin: '0 0 16px 0',
+                }}
+              >
+                Digital Attendance & Practical Competency Tracking for ITIs
               </h1>
-              <p>
-                ITI SkillTrack brings attendance, practical activities, competency assessments and
-                institute administration into one clear, role-aware workspace.
+
+              <p
+                style={{
+                  fontSize: '1rem',
+                  color: '#475569',
+                  lineHeight: 1.65,
+                  maxWidth: '540px',
+                  margin: '0 0 28px 0',
+                }}
+              >
+                Replace fragmented paper registers and spreadsheets with an institutional record system designed for industrial training institutes. Built to enforce attendance thresholds, safety-critical rubrics, and remedial follow-ups.
               </p>
 
-              <div className="landing-hero-actions">
-                <Link to={dashboardPath} className="btn btn-primary landing-btn-lg">
-                  {primaryLabel}
-                  <ArrowRight size={16} />
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '32px' }}>
+                <Link
+                  to={dashboardPath}
+                  style={{
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    padding: '12px 22px',
+                    fontSize: '0.92rem',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  {primaryLabel} <ArrowRight size={16} />
                 </Link>
-                <a href="#features" className="btn btn-on-dark landing-btn-lg">
-                  Explore features
+                <a
+                  href="#rubrics"
+                  style={{
+                    background: '#f8fafc',
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    padding: '12px 20px',
+                    fontSize: '0.92rem',
+                    fontWeight: 600,
+                    borderRadius: '6px',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  View Competency Policy
                 </a>
               </div>
 
-              <div className="landing-hero-trust">
-                <span>
-                  <ShieldCheck size={15} />
-                  Server-enforced access
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', fontSize: '0.8rem', color: '#64748b' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <ShieldCheck size={16} color="#2563eb" /> Server-Enforced RBAC
                 </span>
-                <span>
-                  <Database size={15} />
-                  SQLite or MySQL
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckCircle2 size={16} color="#059669" /> Zero Docker Dependencies
                 </span>
-                <span>
-                  <Smartphone size={15} />
-                  Works on mobile
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  <CalendarCheck2 size={16} color="#2563eb" /> 80% Practical Gate
                 </span>
               </div>
             </div>
 
-            <div className="landing-preview" aria-hidden="true">
-              <div className="preview-window">
-                <div className="preview-topbar">
-                  <span className="preview-dots">
-                    <span />
-                    <span />
-                    <span />
-                  </span>
-                  <span>Institute overview</span>
-                  <span className="preview-live">
-                    <span className="status-dot" />
-                    Live
+            {/* Practical Register Preview Card (Clean Product UI, no fake 3D tilts) */}
+            <div
+              style={{
+                background: '#ffffff',
+                borderRadius: '12px',
+                border: '1px solid #cbd5e1',
+                boxShadow: '0 8px 30px -8px rgba(15, 23, 42, 0.08)',
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  padding: '12px 18px',
+                  background: '#f8fafc',
+                  borderBottom: '1px solid #e2e8f0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                <div>
+                  <strong style={{ fontSize: '0.82rem', color: '#0f172a', display: 'block' }}>
+                    Electrician Trade · Batch EL-2026-A
+                  </strong>
+                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                    Instructor: Rajesh Sharma · Morning Shift
                   </span>
                 </div>
+                <span
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    background: '#ecfdf5',
+                    color: '#065f46',
+                  }}
+                >
+                  Active Register
+                </span>
+              </div>
 
-                <div className="preview-body">
-                  <div className="preview-stat-row">
-                    {PREVIEW_STATS.map((stat) => (
-                      <div className="preview-stat" key={stat.label}>
-                        <span>{stat.label}</span>
-                        <strong>{stat.value}</strong>
-                      </div>
-                    ))}
+              <div style={{ padding: '18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block' }}>ATTENDANCE</span>
+                    <strong style={{ fontSize: '1.1rem', color: '#0f172a' }}>92.5%</strong>
+                    <span style={{ fontSize: '0.68rem', color: '#059669', display: 'block' }}>Eligible (≥80%)</span>
+                  </div>
+                  <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block' }}>PRACTICALS</span>
+                    <strong style={{ fontSize: '1.1rem', color: '#059669' }}>4 / 5</strong>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block' }}>Competent</span>
+                  </div>
+                  <div style={{ padding: '8px 10px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                    <span style={{ fontSize: '0.68rem', color: '#64748b', display: 'block' }}>SAFETY CHECK</span>
+                    <strong style={{ fontSize: '1.1rem', color: '#2563eb' }}>100%</strong>
+                    <span style={{ fontSize: '0.68rem', color: '#2563eb', display: 'block' }}>PPE Adherence</span>
+                  </div>
+                </div>
+
+                <div style={{ padding: '10px 12px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                    <strong style={{ fontSize: '0.8rem', color: '#0f172a' }}>ACT-ELE-101: Hand Tools & PPE Safety</strong>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#059669' }}>COMPETENT (90%)</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '0.72rem', color: '#64748b' }}>
+                    PPE Adherence: 5/5 · Tool Rating: 4/5 · Passed Safety Benchmark
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', background: '#f8fafc', borderRadius: '6px' }}>
+                    <div>
+                      <strong style={{ fontSize: '0.78rem', display: 'block' }}>Amit Kumar</strong>
+                      <span style={{ fontSize: '0.68rem', color: '#64748b' }}>ADM-2026-001</span>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#059669' }}>COMPETENT · 90%</span>
                   </div>
 
-                  <div className="preview-progress">
-                    <div className="preview-progress-head">
-                      <span>Competency progress · Electrician</span>
-                      <strong>68%</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', background: '#f8fafc', borderRadius: '6px' }}>
+                    <div>
+                      <strong style={{ fontSize: '0.78rem', display: 'block' }}>Rahul Singh</strong>
+                      <span style={{ fontSize: '0.68rem', color: '#64748b' }}>ADM-2026-003</span>
                     </div>
-                    <div className="preview-line">
-                      <span style={{ width: '68%' }} />
-                    </div>
-                  </div>
-
-                  <div className="preview-list">
-                    {PREVIEW_ROWS.map((row) => (
-                      <div className="preview-row" key={row.name}>
-                        <span className="preview-avatar">{row.initials}</span>
-                        <span>
-                          <strong>{row.name}</strong>
-                          <span>{row.detail}</span>
-                        </span>
-                        <span className={`preview-chip preview-chip-${row.tone}`}>{row.status}</span>
-                      </div>
-                    ))}
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#b45309' }}>REMEDIAL ASSIGNED</span>
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
 
-              <div className="preview-float preview-float-a">
-                <Award size={19} />
-                <span>
-                  <strong>Competency</strong>
-                  <span>Demonstrated</span>
+        {/* 3. POLICY DATA RIBBON */}
+        <section style={{ background: '#0f172a', color: '#ffffff', padding: '32px 28px' }}>
+          <div
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '24px',
+              textAlign: 'center',
+            }}
+          >
+            {STATS_DATA.map((item, idx) => (
+              <div key={idx} style={{ padding: '6px 10px' }}>
+                <strong style={{ fontSize: '2rem', fontWeight: 800, color: '#60a5fa', display: 'block', letterSpacing: '-0.02em' }}>
+                  {item.value}
+                </strong>
+                <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#f8fafc', display: 'block', marginTop: '4px' }}>
+                  {item.title}
+                </span>
+                <span style={{ fontSize: '0.74rem', color: '#94a3b8', display: 'block', marginTop: '2px' }}>
+                  {item.desc}
                 </span>
               </div>
-              <div className="preview-float preview-float-b">
-                <CalendarCheck2 size={19} />
-                <span>
-                  <strong>Attendance</strong>
-                  <span>92% this week</span>
-                </span>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        <section className="landing-stats" aria-label="Platform at a glance">
-          <div className="landing-stats-inner">
-            <div className="landing-stat">
-              <strong>3</strong>
-              <span>role-aware workspaces</span>
-            </div>
-            <div className="landing-stat">
-              <strong>24</strong>
-              <span>core data tables</span>
-            </div>
-            <div className="landing-stat">
-              <strong>100%</strong>
-              <span>server-enforced scope</span>
-            </div>
-            <div className="landing-stat">
-              <strong>2</strong>
-              <span>database options</span>
-            </div>
-          </div>
-        </section>
-
-        <section id="features" className="landing-section">
-          <div className="landing-section-head">
-            <span className="page-eyebrow">One connected workspace</span>
-            <h2>Everything the institute needs, without scattered registers.</h2>
-            <p>
-              Replace paper attendance sheets and disconnected spreadsheets with a single source of
-              truth for training delivery and learner outcomes.
-            </p>
-          </div>
-
-          <div className="landing-feature-grid">
-            {FEATURES.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <article className="landing-feature" key={feature.title}>
-                  <span className={`landing-feature-icon landing-tone-${feature.tone}`}>
-                    <Icon size={21} />
-                  </span>
-                  <h3>{feature.title}</h3>
-                  <p>{feature.body}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <div className="landing-band" id="roles">
-          <section className="landing-section">
-            <div className="landing-section-head">
-              <span className="page-eyebrow">Built around people</span>
-              <h2>Each role sees exactly what it needs.</h2>
-              <p>
-                Navigation, records and actions are scoped by role, so students, instructors and
-                administrators can work confidently without stepping on each other.
+        {/* 4. WORKFLOW: Human & Practical 4-Step Breakdown */}
+        <section id="overview" style={{ padding: '72px 28px', background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 48px' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Operational Workflow
+              </span>
+              <h2 style={{ fontSize: '1.95rem', fontWeight: 800, letterSpacing: '-0.03em', margin: '8px 0 12px', color: '#0f172a' }}>
+                How ITI Training Is Structured
+              </h2>
+              <p style={{ color: '#64748b', fontSize: '0.94rem', lineHeight: 1.6, margin: 0 }}>
+                A step-by-step model designed around standard government ITI curriculum delivery.
               </p>
             </div>
 
-            <div className="landing-role-grid">
-              {ROLES.map((role) => {
-                const Icon = role.icon;
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px' }}>
+              {MODULE_WORKFLOW.map((item) => {
+                const Icon = item.icon;
                 return (
-                  <article className="landing-role-card" key={role.title}>
-                    <div className="landing-role-top">
-                      <span className={`landing-role-icon landing-tone-${role.tone}`}>
-                        <Icon size={22} />
-                      </span>
-                      <h3>{role.title}</h3>
+                  <div
+                    key={item.step}
+                    style={{
+                      padding: '24px 20px',
+                      borderRadius: '8px',
+                      background: '#f8fafc',
+                      border: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                      <div
+                        style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '6px',
+                          background: '#eff6ff',
+                          color: '#2563eb',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Icon size={18} />
+                      </div>
+                      <span style={{ fontSize: '1.1rem', fontWeight: 800, color: '#cbd5e1' }}>0{item.step}</span>
                     </div>
-                    <p>{role.body}</p>
-                    <ul className="landing-role-list">
-                      {role.points.map((point) => (
-                        <li key={point}>
-                          <CheckCircle2 size={15} />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link to={dashboardPath} className="landing-role-link">
-                      {user ? 'Open dashboard' : 'Sign in'}
-                      <ChevronRight size={15} />
-                    </Link>
-                  </article>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, margin: '0 0 8px 0', color: '#0f172a' }}>{item.title}</h3>
+                    <p style={{ fontSize: '0.85rem', color: '#64748b', lineHeight: 1.55, margin: 0 }}>{item.desc}</p>
+                  </div>
                 );
               })}
             </div>
-          </section>
-        </div>
-
-        <section id="workflow" className="landing-section">
-          <div className="landing-workflow">
-            <div className="landing-workflow-copy">
-              <div className="landing-section-head">
-                <span className="page-eyebrow">From setup to outcomes</span>
-                <h2>A simple training workflow.</h2>
-                <p>Get the institute operational in four clear steps.</p>
-              </div>
-
-              <div className="landing-steps">
-                {STEPS.map((step, index) => (
-                  <div className="landing-step" key={step.title}>
-                    <span className="landing-step-num">{index + 1}</span>
-                    <div>
-                      <h3>{step.title}</h3>
-                      <p>{step.body}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <aside className="landing-cta-card">
-              <span className="landing-cta-icon">
-                <BarChart3 size={22} />
-              </span>
-              <h3>Ready to open the workspace?</h3>
-              <p>
-                Sign in with an administrator, instructor or student account. Demo accounts are
-                listed directly on the sign-in page.
-              </p>
-              <Link to={dashboardPath} className="btn btn-primary">
-                {user ? 'Open dashboard' : 'Go to sign in'}
-                <ArrowRight size={16} />
-              </Link>
-              <p className="landing-demo-note">
-                <BookOpen size={13} />
-                Built for attendance, practicals and competency tracking
-              </p>
-            </aside>
           </div>
         </section>
 
-        <div className="landing-cta-band">
-          <div className="landing-cta-inner">
+        {/* 5. DEC-05 RUBRIC SPOTLIGHT: Clear Criteria & Safety Gates */}
+        <section id="rubrics" style={{ padding: '72px 28px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <div
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1.05fr)',
+              gap: '48px',
+              alignItems: 'center',
+            }}
+          >
             <div>
-              <h2>Keep every batch, register and competency in one place.</h2>
-              <p>Start with the demo institute, then adapt the master data to your own ITI.</p>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Competency Assessment Policy
+              </span>
+              <h2 style={{ fontSize: '1.95rem', fontWeight: 800, letterSpacing: '-0.03em', margin: '8px 0 16px', color: '#0f172a' }}>
+                DEC-05 Objective Practical Rubrics
+              </h2>
+              <p style={{ color: '#475569', fontSize: '0.94rem', lineHeight: 1.6, marginBottom: '20px' }}>
+                Subjective pass marks are prohibited. ITI SkillTrack applies institutional completion logic directly in the assessment engine:
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', gap: '12px', padding: '12px 16px', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <ShieldAlert size={18} color="#dc2626" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <div>
+                    <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>1. Mandatory Safety Benchmark (≥ 4/5)</strong>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
+                      Failing any safety criterion (e.g. PPE inspection, Lockout/Tagout, de-energization) prohibits a Competent rating.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', padding: '12px 16px', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <Award size={18} color="#2563eb" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <div>
+                    <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>2. 75% Overall Benchmark</strong>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
+                      The weighted aggregate across all criteria must achieve ≥ 75% of maximum points to earn Competent (C) status.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', padding: '12px 16px', background: '#ffffff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <UserCheck size={18} color="#b45309" style={{ marginTop: '2px', flexShrink: 0 }} />
+                  <div>
+                    <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>3. Remedial Assignment Trigger</strong>
+                    <p style={{ margin: '2px 0 0', fontSize: '0.8rem', color: '#64748b' }}>
+                      Trainees receiving Needs Practice (NP) have remedial tasks recorded with clear instructions and deadlines.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <Link to={dashboardPath} className="btn btn-primary landing-btn-lg">
-              {primaryLabel}
-              <ArrowRight size={16} />
+
+            {/* Practical Rubric Example Table */}
+            <div
+              style={{
+                background: '#ffffff',
+                padding: '24px',
+                borderRadius: '10px',
+                border: '1px solid #cbd5e1',
+                boxShadow: '0 4px 20px -6px rgba(15, 23, 42, 0.05)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                  Practical Activity Rubric
+                </span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 700, padding: '2px 6px', borderRadius: '4px', background: '#eff6ff', color: '#1d4ed8' }}>
+                  ACT-ELE-101
+                </span>
+              </div>
+
+              <h3 style={{ margin: '0 0 4px', fontSize: '1.15rem', fontWeight: 700 }}>Identification & Handling of Hand Tools & PPE</h3>
+              <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '16px' }}>
+                Module 1: Safety & Tools · Evaluator: Rajesh Sharma
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                <div style={{ padding: '8px 12px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>CRIT-101-1: PPE Inspection & Adherence</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', color: '#dc2626', fontWeight: 700 }}>MANDATORY SAFETY (≥4)</span>
+                  </div>
+                  <strong style={{ fontSize: '0.9rem', color: '#059669' }}>5 / 5 pts</strong>
+                </div>
+
+                <div style={{ padding: '8px 12px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>CRIT-101-2: Tool Selection & 1000V Rating</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', color: '#64748b' }}>Standard Technical Standard</span>
+                  </div>
+                  <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>4 / 5 pts</strong>
+                </div>
+
+                <div style={{ padding: '8px 12px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>CRIT-101-3: Wire Stripping Technique</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', color: '#64748b' }}>Precision & Core Integrity</span>
+                  </div>
+                  <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>4 / 5 pts</strong>
+                </div>
+
+                <div style={{ padding: '8px 12px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontSize: '0.82rem', fontWeight: 600 }}>CRIT-101-4: Workshop Housekeeping & Return</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', color: '#dc2626', fontWeight: 700 }}>MANDATORY SAFETY (≥4)</span>
+                  </div>
+                  <strong style={{ fontSize: '0.9rem', color: '#059669' }}>5 / 5 pts</strong>
+                </div>
+              </div>
+
+              <div style={{ padding: '12px 14px', borderRadius: '8px', background: '#ecfdf5', border: '1px solid #a7f3d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <span style={{ fontSize: '0.7rem', color: '#065f46', fontWeight: 700 }}>AGGREGATE RESULT</span>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#065f46' }}>18 / 20 (90%)</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 800, padding: '3px 8px', borderRadius: '4px', background: '#059669', color: '#ffffff' }}>
+                    COMPETENT (C)
+                  </span>
+                  <span style={{ display: 'block', fontSize: '0.66rem', color: '#065f46', marginTop: '2px' }}>Safety Criteria Passed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 6. ROLE WORKSPACES: Tabs & Real User Perspectives */}
+        <section id="roles" style={{ padding: '72px 28px', background: '#ffffff', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', maxWidth: '640px', margin: '0 auto 36px' }}>
+              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Role Workspaces
+              </span>
+              <h2 style={{ fontSize: '1.95rem', fontWeight: 800, letterSpacing: '-0.03em', margin: '8px 0 10px', color: '#0f172a' }}>
+                Tailored for Trainees, Trainers & Admins
+              </h2>
+              <p style={{ color: '#64748b', fontSize: '0.92rem', margin: 0 }}>
+                Select a role to preview its workflow and pre-configured test credentials.
+              </p>
+
+              <div
+                style={{
+                  display: 'inline-flex',
+                  padding: '3px',
+                  background: '#f1f5f9',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  marginTop: '18px',
+                }}
+              >
+                {Object.keys(ROLE_TABS).map((key) => {
+                  const isActive = activeTabKey === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setActiveTabKey(key)}
+                      style={{
+                        padding: '8px 18px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: isActive ? '#2563eb' : 'transparent',
+                        color: isActive ? '#ffffff' : '#64748b',
+                        fontWeight: 700,
+                        fontSize: '0.85rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {ROLE_TABS[key].label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Role Card */}
+            <div
+              style={{
+                padding: '32px',
+                borderRadius: '12px',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 1.25fr) minmax(0, 0.75fr)',
+                gap: '36px',
+                alignItems: 'center',
+              }}
+            >
+              <div>
+                <h3 style={{ margin: '0 0 8px', fontSize: '1.45rem', fontWeight: 800 }}>{activeRole.headline}</h3>
+                <p style={{ fontSize: '0.88rem', color: '#64748b', marginBottom: '20px' }}>{activeRole.sub}</p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {activeRole.points.map((pt, idx) => (
+                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.86rem' }}>
+                      <CheckCircle2 size={16} color="#059669" style={{ flexShrink: 0 }} />
+                      <span style={{ color: '#334155' }}>{pt}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Demo Account Box */}
+              <div
+                style={{
+                  padding: '22px',
+                  background: '#ffffff',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                }}
+              >
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', display: 'block' }}>
+                  Pre-Seeded Pilot Account
+                </span>
+                <div style={{ margin: '10px 0 2px', fontWeight: 700, fontSize: '0.94rem', color: '#0f172a' }}>
+                  {activeRole.demoAccount}
+                </div>
+                <div style={{ fontSize: '0.78rem', color: '#64748b', marginBottom: '14px' }}>
+                  {activeRole.demoRole}
+                </div>
+                <div style={{ fontSize: '0.76rem', color: '#64748b', marginBottom: '18px' }}>
+                  Password: <code style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', color: '#0f172a' }}>Password@123</code>
+                </div>
+
+                <Link
+                  to="/login"
+                  style={{
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    width: '100%',
+                    padding: '10px',
+                    fontSize: '0.88rem',
+                    fontWeight: 700,
+                    borderRadius: '6px',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  {activeRole.linkText} &rarr;
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. BOTTOM BANNER */}
+        <section
+          style={{
+            padding: '54px 28px',
+            background: '#0f172a',
+            color: '#ffffff',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: '1080px',
+              margin: '0 auto',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '20px',
+            }}
+          >
+            <div>
+              <h2 style={{ fontSize: '1.65rem', fontWeight: 800, margin: '0 0 6px', color: '#ffffff' }}>
+                Open the ITI SkillTrack Workspace
+              </h2>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: '#94a3b8' }}>
+                Sign in with an administrator, instructor, or student account to view live records.
+              </p>
+            </div>
+            <Link
+              to={dashboardPath}
+              style={{
+                background: '#2563eb',
+                color: '#ffffff',
+                padding: '12px 24px',
+                fontSize: '0.9rem',
+                fontWeight: 700,
+                borderRadius: '6px',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              {primaryLabel} &rarr;
             </Link>
           </div>
-        </div>
+        </section>
       </main>
 
-      <footer className="landing-footer">
-        <div className="landing-footer-inner">
+      {/* 8. FOOTER */}
+      <footer style={{ padding: '36px 28px', background: '#0b1120', color: '#94a3b8', borderTop: '1px solid #1e293b' }}>
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
+        >
           <div>
-            <div className="landing-footer-brand">
-              <span className="logo-badge">ST</span>
-              <strong>ITI SkillTrack</strong>
-            </div>
-            <p>Digital attendance, practical assessment and competency records for industrial training institutes.</p>
+            <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>ITI SkillTrack</strong>
+            <p style={{ fontSize: '0.78rem', color: '#64748b', margin: '2px 0 0' }}>
+              Digital Skill Training, Attendance, and Competency Tracking for Industrial Training Institutes
+            </p>
           </div>
 
-          <nav className="landing-footer-links" aria-label="Footer">
-            <a href="#features">Features</a>
-            <a href="#roles">Roles</a>
-            <a href="#workflow">How it works</a>
-            <Link to="/login">Sign in</Link>
-          </nav>
+          <div style={{ display: 'flex', gap: '20px', fontSize: '0.8rem' }}>
+            <a href="#overview" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Overview</a>
+            <a href="#rubrics" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Rubrics</a>
+            <a href="#roles" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Workspaces</a>
+            <Link to="/login" style={{ color: '#60a5fa', textDecoration: 'none', fontWeight: 600 }}>Sign In</Link>
+          </div>
         </div>
 
-        <div className="landing-footer-bottom">
-          <span>© 2026 ITI SkillTrack</span>
-          <span>Model Industrial Training Institute · Pilot deployment</span>
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '20px auto 0',
+            paddingTop: '16px',
+            borderTop: '1px solid #1e293b',
+            display: 'flex',
+            justifyContent: 'space-between',
+            fontSize: '0.72rem',
+            color: '#64748b',
+          }}
+        >
+          <span>© 2026 ITI SkillTrack · Model Industrial Training Institute (ITI-MODEL-01)</span>
+          <span>PHP 8.3 REST API · React 19 SPA · MySQL 8.x / SQLite PDO</span>
         </div>
       </footer>
     </div>

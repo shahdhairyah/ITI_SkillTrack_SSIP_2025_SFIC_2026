@@ -229,28 +229,30 @@ CREATE TABLE IF NOT EXISTS activity_attempts (
 
 CREATE TABLE IF NOT EXISTS assessments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    attempt_id INTEGER NOT NULL UNIQUE,
+    attempt_id INTEGER NOT NULL,
     assessor_id INTEGER NOT NULL,
+    total_score REAL NOT NULL DEFAULT 0.00,
+    max_possible REAL NOT NULL DEFAULT 20.00,
+    percentage REAL NOT NULL DEFAULT 0.00,
+    derived_status TEXT NOT NULL DEFAULT 'in_progress',
     assessed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    outcome TEXT NOT NULL,
-    overall_percentage REAL NOT NULL DEFAULT 0.0,
+    status TEXT NOT NULL DEFAULT 'submitted',
     feedback TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (attempt_id) REFERENCES activity_attempts(id) ON DELETE CASCADE,
-    FOREIGN KEY (assessor_id) REFERENCES instructors(id) ON DELETE RESTRICT
+    FOREIGN KEY (assessor_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS assessment_criterion_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     assessment_id INTEGER NOT NULL,
     criterion_id INTEGER NOT NULL,
-    points_awarded INTEGER NOT NULL DEFAULT 0,
-    meets_safety INTEGER NOT NULL DEFAULT 1,
-    notes TEXT NULL,
+    result_value INTEGER NOT NULL,
+    result_status TEXT NOT NULL DEFAULT 'assessed',
+    comment TEXT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (assessment_id, criterion_id),
     FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE CASCADE,
-    FOREIGN KEY (criterion_id) REFERENCES competency_criteria(id) ON DELETE CASCADE
+    FOREIGN KEY (criterion_id) REFERENCES competency_criteria(id) ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS remedial_assignments (

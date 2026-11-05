@@ -13,7 +13,7 @@ Full architecture, design specifications, requirements, and policy documents are
 
 ---
 
-## Current Status: Phase 3 Completed & Verified (Native React + PHP + MySQL)
+## Current Status: Phase 5 Completed & Verified (Native React + PHP + MySQL)
 *Zero Docker dependencies required.*
 
 ### Phase 1: Foundation & Project Setup (Done)
@@ -27,14 +27,28 @@ Full architecture, design specifications, requirements, and policy documents are
 - Management of Trades, Academic Periods, Batches, Students, and Instructors.
 
 ### Phase 3: Training Sessions & Attendance Tracking (Done & Verified)
-- **Session Scheduling (ATT-01/02):** Schedule practical labs, theory classes, workshops with batch, date, topic, time.
+- **Session Scheduling (ATT-01/02):** Practical labs, theory classes, workshops with batch, date, topic, time.
 - **Authoritative Roster (ATT-03):** Dynamic enrollment queries as of session date.
-- **Draft & Submission Workflow (ATT-05/06/07):** Live draft saving with partial marks, missing marks validation, register locking with timestamp upon submit.
+- **Draft & Submission Workflow (ATT-05/06/07):** Live draft saving with partial marks, missing marks validation.
 - **Controlled Corrections (ATT-08):** Modifying submitted registers mandates reasons ($\ge 10$ chars), logs to append-only `audit_logs` table.
 - **Attendance Percentage Formula (ATT-10/DEC-03):**
   $$\text{Attendance } \% = \frac{\text{Count}(\text{present}) + \text{Count}(\text{late})}{\text{Total Applicable Sessions} - \text{Count}(\text{excused})} \times 100$$
 - **Statutory 80% Threshold:** Automatic eligibility badge (`ELIGIBLE FOR EXAM` vs `ATTENDANCE WARNING (<80%)`).
-- **Reports & Export (ATT-11/DEC-09):** Batch matrix report with formula-injection-sanitized CSV export.
+
+### Phase 4: Practical Activities & Competency Assessment (Done & Verified)
+- **Trade Curriculum & Modules (SKILL-01/02/03):** Structured Trade -> Modules -> Practical Activities hierarchy.
+- **Authoritative Rubric Versioning (DEC-05):** 0–5 criterion scale with mandatory safety-critical gates.
+- **DEC-05 Competency Rule:** Evaluated as `Competent` only if:
+  1. All mandatory safety criteria are scored $\ge 4/5$.
+  2. Total aggregate percentage is $\ge 75\%$.
+- **Attempt & Evaluation Engine (SKILL-04 to SKILL-08):** Multi-attempt tracking (`attempt_no`), criterion results table, instructor feedback, and transaction-safe submissions.
+- **Batch Competency Matrix UI:** Live student-vs-activities progress grid for instructors and admins.
+
+### Phase 5: Remedial Support & Dashboards (Done & Verified)
+- **Personalized Remedial Tracking (REM-01 to REM-05):** Automatic and manual remedial assignment when a trainee fails safety or benchmark scores.
+- **Structured Review Flow:** Instructor review outcome, notes, and state transitions (`assigned`, `in_progress`, `completed`, `cancelled`).
+- **Student Portfolio UI (SKILL-09 / REM-04):** Dedicated trainee view with competency breakdown, criterion scores, and remedial tasks.
+- **Role Dashboards:** Integrated live statistics for Administrator, Instructor, and Student portals.
 
 ---
 

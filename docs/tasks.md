@@ -77,31 +77,31 @@ Initial status for all implementation tasks is **Not started**.
 
 ## Phase 4 — Activities and competency
 
-- [ ] **SKILL-01 [P0]** Create modules, practical activities and competency criteria migrations.
-- [ ] **SKILL-02 [P0]** Define rubric configuration/version strategy.
-- [ ] **SKILL-03 [P0]** Build administrator curriculum/activity management screens.
-- [ ] **SKILL-04 [P0]** Create student activity attempt migration and endpoints.
-- [ ] **SKILL-05 [P0]** Create assessment and criterion result migrations.
-- [ ] **SKILL-06 [P0]** Implement criterion-level validation and assessment submission transaction.
-- [ ] **SKILL-07 [P0]** Implement competency summary calculation from approved rules.
-- [ ] **SKILL-08 [P0]** Build instructor assessment form with rubric, feedback and review states.
-- [ ] **SKILL-09 [P0]** Build student activity history and competency detail screens.
-- [ ] **SKILL-10 [P1]** Add private evidence upload metadata/storage flow if approved.
-- [ ] **SKILL-11 [P0]** Test rubric bounds, missing criteria, assessor scope and historical rubric stability.
-- [ ] **SKILL-12 [P0]** Obtain trainer sign-off on pilot trade rubric and competency labels.
+- [x] **SKILL-01 [P0]** Create modules, practical activities and competency criteria migrations.
+- [x] **SKILL-02 [P0]** Define rubric configuration/version strategy.
+- [x] **SKILL-03 [P0]** Build administrator curriculum/activity management screens.
+- [x] **SKILL-04 [P0]** Create student activity attempt migration and endpoints.
+- [x] **SKILL-05 [P0]** Create assessment and criterion result migrations.
+- [x] **SKILL-06 [P0]** Implement criterion-level validation and assessment submission transaction.
+- [x] **SKILL-07 [P0]** Implement competency summary calculation from approved rules.
+- [x] **SKILL-08 [P0]** Build instructor assessment form with rubric, feedback and review states.
+- [x] **SKILL-09 [P0]** Build student activity history and competency detail screens.
+- [x] **SKILL-10 [P1]** Add private evidence upload metadata/storage flow if approved.
+- [x] **SKILL-11 [P0]** Test rubric bounds, missing criteria, assessor scope and historical rubric stability.
+- [x] **SKILL-12 [P0]** Obtain trainer sign-off on pilot trade rubric and competency labels.
 
 ## Phase 5 — Remedial support and dashboards
 
-- [ ] **REM-01 [P0]** Create remedial assignment and review migrations.
-- [ ] **REM-02 [P0]** Implement remedial create/update/review endpoints and allowed state transitions.
-- [ ] **REM-03 [P0]** Build instructor remedial queue and assignment form.
-- [ ] **REM-04 [P0]** Build student remedial task list and detail view.
-- [ ] **REM-05 [P1]** Implement configured follow-up conditions and explainable reason labels.
-- [ ] **DASH-01 [P0]** Implement student dashboard API and UI.
-- [ ] **DASH-02 [P0]** Implement instructor dashboard API and UI.
-- [ ] **DASH-03 [P0]** Implement administrator dashboard API and UI.
-- [ ] **DASH-04 [P1]** Implement in-app notification storage and read state.
-- [ ] **DASH-05 [P0]** Test dashboard aggregates against source records and role scopes.
+- [x] **REM-01 [P0]** Create remedial assignment and review migrations.
+- [x] **REM-02 [P0]** Implement remedial create/update/review endpoints and allowed state transitions.
+- [x] **REM-03 [P0]** Build instructor remedial queue and assignment form.
+- [x] **REM-04 [P0]** Build student remedial task list and detail view.
+- [x] **REM-05 [P1]** Implement configured follow-up conditions and explainable reason labels.
+- [x] **DASH-01 [P0]** Implement student dashboard API and UI.
+- [x] **DASH-02 [P0]** Implement instructor dashboard API and UI.
+- [x] **DASH-03 [P0]** Implement administrator dashboard API and UI.
+- [x] **DASH-04 [P1]** Implement in-app notification storage and read state.
+- [x] **DASH-05 [P0]** Test dashboard aggregates against source records and role scopes.
 
 ## Phase 6 — Reports, audit and hardening
 

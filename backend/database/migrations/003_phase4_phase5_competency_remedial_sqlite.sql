@@ -84,3 +84,4 @@ VALUES
 INSERT OR REPLACE INTO remedial_assignments (id, student_id, activity_id, assigned_by, reason, instructions, due_on, status)
 VALUES
     (1, 3, 1, 2, 'Failed mandatory PPE compliance (scored 2/5 on CRIT-101-1) and wire stripping nicked conductor core.', 'Review ITI Electrician Safety Manual Chapter 1. Re-demonstrate 10 consecutive wire cuts wearing full insulated PPE in presence of instructor.', '2026-11-10', 'assigned');
+

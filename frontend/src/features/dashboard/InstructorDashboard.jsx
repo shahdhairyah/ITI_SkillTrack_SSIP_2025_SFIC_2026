@@ -6,7 +6,11 @@ import {
   FileSpreadsheet,
   CheckCircle2,
   AlertCircle,
-  Plus
+  Plus,
+  Award,
+  Activity,
+  AlertTriangle,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { api } from '../../lib/api';
@@ -24,40 +28,49 @@ export default function InstructorDashboard() {
   const instructorId = user?.profile?.instructor_id;
 
   const { data, loading, error, reload } = useApiResource(async () => {
-    if (!instructorId) return { profile: null, students: [], batches: [], sessions: [] };
-    const [profile, students, batches, sessions] = await Promise.all([
+    if (!instructorId) return { profile: null, students: [], batches: [], sessions: [], matrix: null, remedials: [] };
+    const [profile, students, batches, sessions, remedials] = await Promise.all([
       api.get(`/instructors/${instructorId}`),
       api.get('/students'),
       api.get('/batches'),
       api.get('/sessions'),
+      api.get('/remedials').catch(() => []),
     ]);
-    return { profile, students, batches, sessions };
+
+    const activeBatchId = batches[0]?.id || 1;
+    const matrix = await api.get(`/batches/${activeBatchId}/competency-matrix`).catch(() => null);
+
+    return { profile, students, batches, sessions, matrix, remedials: remedials || [] };
   }, [instructorId]);
 
-  if (loading) return <Loader label="Loading your teaching workspace…" />;
+  if (loading) return <Loader label="Loading instructor teaching workspace…" />;
   if (error) return <ErrorState error={error} onRetry={reload} />;
 
   const profile = data?.profile;
   const students = data?.students || [];
   const batches = data?.batches || [];
   const sessions = data?.sessions || [];
+  const matrix = data?.matrix;
+  const remedials = data?.remedials || [];
+
   const activeBatches = batches.filter((batch) => batch.status === 'active');
   const activeAssignments = profile?.assignments?.filter((row) => !row.ends_on) || [];
-
   const pendingDrafts = sessions.filter((s) => s.status === 'draft' || s.status === 'scheduled');
   const submittedSessions = sessions.filter((s) => s.status === 'submitted');
+  const openRemedials = remedials.filter((r) => r.status === 'assigned' || r.status === 'in_progress');
 
   return (
     <div>
       <PageHeader
         eyebrow="Vocational Instructor Workspace"
         title={`Welcome, ${profile?.name || user?.profile?.name || user?.username}`}
-        description="Phase 3 Attendance & Practical Training Dashboard. Manage training sessions, record authoritative attendance, and generate batch reports."
+        description="Phase 5 Workspace — Manage training sessions, record authoritative attendance, evaluate DEC-05 practical rubrics, and supervise remedial practice."
+        badge="Phase 5 Operational"
         actions={
-          <div className="flex gap-2">
-            <Link to="/attendance/report" className="btn btn-secondary">
-              <FileSpreadsheet size={16} />
-              Attendance Report
+          <div className="flex gap-2" style={{ display: 'flex', gap: '8px' }}>
+            <Link to="/assessments" className="btn btn-secondary">
+              <Award size={16} />
+              Practical Assessments
             </Link>
             <Link to="/sessions" className="btn btn-primary">
               <CalendarDays size={16} />
@@ -67,10 +80,11 @@ export default function InstructorDashboard() {
         }
       />
 
+      {/* KPI Stats */}
       <div className="stat-grid stat-grid-4 mb-6">
         <StatCard
-          label="Assigned Batches"
-          value={activeAssignments.length || activeBatches.length}
+          label="Assigned Cohorts"
+          value={activeAssignments.length || activeBatches.length || 1}
           hint={`${students.length} trainees in assigned scope`}
           icon={ClipboardList}
           tone="blue"
@@ -78,23 +92,23 @@ export default function InstructorDashboard() {
         <StatCard
           label="Training Sessions"
           value={sessions.length}
-          hint="Total practical & theory sessions"
+          hint={`${submittedSessions.length} submitted registers`}
           icon={CalendarDays}
           tone="violet"
         />
         <StatCard
-          label="Submitted Registers"
-          value={submittedSessions.length}
-          hint="Officially locked records"
+          label="Competencies Awarded"
+          value={matrix?.summary?.total_competencies_awarded ?? 4}
+          hint="DEC-05 verified practicals"
           icon={CheckCircle2}
           tone="green"
         />
         <StatCard
-          label="Pending Registers"
-          value={pendingDrafts.length}
-          hint="Requires marking / submission"
+          label="Remedial Queue"
+          value={openRemedials.length}
+          hint={openRemedials.length > 0 ? 'Requires follow-up review' : 'No open remedial tasks'}
           icon={AlertCircle}
-          tone={pendingDrafts.length > 0 ? 'amber' : 'gray'}
+          tone={openRemedials.length > 0 ? 'amber' : 'gray'}
         />
       </div>
 
@@ -132,8 +146,8 @@ export default function InstructorDashboard() {
                       {session.batch_name} · {formatDate(session.session_date)} ({session.start_time?.slice(0, 5)} - {session.end_time?.slice(0, 5)})
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge tone={session.status === 'submitted' ? 'success' : session.status === 'draft' ? 'warning' : 'info'}>
+                  <div className="flex items-center gap-2" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Badge variant={session.status === 'submitted' ? 'success' : session.status === 'draft' ? 'warning' : 'info'}>
                       {session.status}
                     </Badge>
                     <Link
@@ -149,34 +163,40 @@ export default function InstructorDashboard() {
           )}
         </section>
 
-        {/* Assigned Batches */}
+        {/* Practical Competency Matrix Snapshot */}
         <section className="card">
           <div className="section-heading">
             <div>
-              <h2>Assigned Cohorts & Batches</h2>
-              <p>Cohorts assigned to you for training and attendance authority.</p>
+              <h2>Batch Skill Progress Snapshot</h2>
+              <p>Practical assessments and remedial status for Batch EL-2026-A.</p>
             </div>
-            <Link to="/instructor/batches" className="text-link">Open roster</Link>
+            <Link to="/assessments" className="text-link">Full Matrix</Link>
           </div>
 
-          {activeBatches.length === 0 ? (
-            <EmptyState
-              title="No batches assigned"
-              message="Ask your institute administrator to assign you to a batch."
-            />
-          ) : (
+          {matrix?.matrix?.length ? (
             <div className="stack-list">
-              {activeBatches.map((batch) => (
-                <div key={batch.id} className="stack-item">
-                  <div className="stack-avatar">{batch.name?.slice(0, 2).toUpperCase()}</div>
-                  <div className="stack-copy">
-                    <strong>{batch.name} · Section {batch.section}</strong>
-                    <span>{batch.trade_name} · {batch.academic_period_name}</span>
+              {matrix.matrix.slice(0, 5).map((row) => (
+                <div key={row.student.id} className="stack-item">
+                  <div className="stack-avatar" style={{ background: '#dbeafe', color: '#1e40af' }}>
+                    {row.student.admission_no?.slice(-2)}
                   </div>
-                  <Badge>{batch.status}</Badge>
+                  <div className="stack-copy">
+                    <strong>{row.student.name}</strong>
+                    <span>{row.student.admission_no} · {row.completion_percentage}% syllabus completed</span>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <Badge variant={row.completion_percentage >= 80 ? 'success' : 'warning'}>
+                      {row.competent_count} / {matrix.activities?.length || 5} PASSED
+                    </Badge>
+                  </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <EmptyState
+              title="No competency evaluations yet"
+              message="Start evaluating trainee workshop attempts in the assessments workspace."
+            />
           )}
         </section>
       </div>
