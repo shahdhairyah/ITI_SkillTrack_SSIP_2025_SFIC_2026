@@ -22,5 +22,6 @@ class AuthMiddleware
         }
 
         $GLOBALS['CURRENT_USER'] = $user;
+        $GLOBALS['AUTH_USER'] = $user;
     }
 }

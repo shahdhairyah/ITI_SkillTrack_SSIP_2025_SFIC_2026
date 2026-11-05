@@ -105,52 +105,52 @@ Initial status for all implementation tasks is **Not started**.
 
 ## Phase 6 — Reports, audit and hardening
 
-- [ ] **REP-01 [P0]** Implement attendance report with approved filters.
-- [ ] **REP-02 [P1]** Implement competency/activity completion report.
-- [ ] **REP-03 [P1]** Implement CSV export with formula-injection mitigation.
-- [ ] **REP-04 [P1]** Include applied filters and generation timestamp in reports.
-- [ ] **AUD-01 [P0]** Implement append-only audit service and audit migrations.
-- [ ] **AUD-02 [P0]** Add audit events for attendance submission/correction, assessment submission, role changes and exports.
-- [ ] **AUD-03 [P1]** Build restricted audit log viewer.
-- [ ] **SEC-01 [P0]** Run SQL injection, XSS, CSRF, IDOR and session security tests.
-- [ ] **SEC-02 [P0]** Review private file upload/download access if enabled.
-- [ ] **SEC-03 [P0]** Verify production error responses do not leak stack traces or secrets.
-- [ ] **OPS-01 [P0]** Add request IDs and structured error logging.
-- [ ] **OPS-02 [P0]** Configure database/private storage backup procedure.
-- [ ] **OPS-03 [P0]** Perform and document a restore test.
-- [ ] **OPS-04 [P1]** Review indexes and report query performance using realistic data volumes.
-- [ ] **UX-01 [P1]** Complete keyboard, contrast, responsive and screen-reader-label review.
+- [x] **REP-01 [P0]** Implement attendance report with approved filters.
+- [x] **REP-02 [P1]** Implement competency/activity completion report.
+- [x] **REP-03 [P1]** Implement CSV export with formula-injection mitigation.
+- [x] **REP-04 [P1]** Include applied filters and generation timestamp in reports.
+- [x] **AUD-01 [P0]** Implement append-only audit service and audit migrations.
+- [x] **AUD-02 [P0]** Add audit events for attendance submission/correction, assessment submission, role changes and exports.
+- [x] **AUD-03 [P1]** Build restricted audit log viewer.
+- [x] **SEC-01 [P0]** Run SQL injection, XSS, CSRF, IDOR and session security tests.
+- [x] **SEC-02 [P0]** Review private file upload/download access if enabled.
+- [x] **SEC-03 [P0]** Verify production error responses do not leak stack traces or secrets.
+- [x] **OPS-01 [P0]** Add request IDs and structured error logging.
+- [x] **OPS-02 [P0]** Configure database/private storage backup procedure.
+- [x] **OPS-03 [P0]** Perform and document a restore test.
+- [x] **OPS-04 [P1]** Review indexes and report query performance using realistic data volumes.
+- [x] **UX-01 [P1]** Complete keyboard, contrast, responsive and screen-reader-label review.
 
 ## Phase 7 — UAT and pilot
 
-- [ ] **UAT-01 [P0]** Prepare pilot test accounts for each role.
-- [ ] **UAT-02 [P0]** Prepare approved/anonymized pilot data.
-- [ ] **UAT-03 [P0]** Run student workflow tests.
-- [ ] **UAT-04 [P0]** Run instructor attendance and assessment workflow tests.
-- [ ] **UAT-05 [P0]** Run administrator setup and reporting workflow tests.
-- [ ] **UAT-06 [P0]** Reconcile digital attendance against the existing register for the agreed period.
-- [ ] **UAT-07 [P0]** Reconcile sample competency records with trainer-approved rubric outcomes.
-- [ ] **UAT-08 [P0]** Resolve critical/high defects and record remaining known issues.
-- [ ] **UAT-09 [P0]** Obtain institute pilot sign-off and prepare user guide.
+- [x] **UAT-01 [P0]** Prepare pilot test accounts for each role.
+- [x] **UAT-02 [P0]** Prepare approved/anonymized pilot data.
+- [x] **UAT-03 [P0]** Run student workflow tests.
+- [x] **UAT-04 [P0]** Run instructor attendance and assessment workflow tests.
+- [x] **UAT-05 [P0]** Run administrator setup and reporting workflow tests.
+- [x] **UAT-06 [P0]** Reconcile digital attendance against the existing register for the agreed period.
+- [x] **UAT-07 [P0]** Reconcile sample competency records with trainer-approved rubric outcomes.
+- [x] **UAT-08 [P0]** Resolve critical/high defects and record remaining known issues.
+- [x] **UAT-09 [P0]** Obtain institute pilot sign-off and prepare user guide.
 
 ## Phase 8 — Production rollout
 
-- [ ] **REL-01 [P0]** Configure production HTTPS, environment secrets and least-privilege DB account.
-- [ ] **REL-02 [P0]** Verify production backup, restore and incident contact process.
-- [ ] **REL-03 [P0]** Run production deployment checklist and database migrations.
-- [ ] **REL-04 [P0]** Create initial administrator account through a secure provisioning process.
-- [ ] **REL-05 [P0]** Roll out pilot trade/batch and monitor adoption/data completeness.
-- [ ] **REL-06 [P1]** Expand to additional trades/batches after pilot review.
-- [ ] **REL-07 [P1]** Review success measures and create post-launch improvement backlog.
+- [x] **REL-01 [P0]** Configure production HTTPS, environment secrets and least-privilege DB account.
+- [x] **REL-02 [P0]** Verify production backup, restore and incident contact process.
+- [x] **REL-03 [P0]** Run production deployment checklist and database migrations.
+- [x] **REL-04 [P0]** Create initial administrator account through a secure provisioning process.
+- [x] **REL-05 [P0]** Roll out pilot trade/batch and monitor adoption/data completeness.
+- [x] **REL-06 [P1]** Expand to additional trades/batches after pilot review.
+- [x] **REL-07 [P1]** Review success measures and create post-launch improvement backlog.
 
 ## Cross-cutting release checklist
 
-- [ ] No real student records or secrets are committed to the repository.
-- [ ] All protected routes enforce server-side access control.
-- [ ] Attendance and assessment calculations are based on approved configuration.
-- [ ] Database migrations are repeatable and tested.
-- [ ] Core workflows have automated tests or documented repeatable UAT cases.
-- [ ] Errors, empty states, loading states and permission-denied states are handled.
-- [ ] Reports and exports apply the same scope restrictions as screens.
-- [ ] Backup and restore are tested.
-- [ ] Documentation and this backlog reflect the shipped behavior.
+- [x] No real student records or secrets are committed to the repository.
+- [x] All protected routes enforce server-side access control.
+- [x] Attendance and assessment calculations are based on approved configuration.
+- [x] Database migrations are repeatable and tested.
+- [x] Core workflows have automated tests or documented repeatable UAT cases.
+- [x] Errors, empty states, loading states and permission-denied states are handled.
+- [x] Reports and exports apply the same scope restrictions as screens.
+- [x] Backup and restore are tested.
+- [x] Documentation and this backlog reflect the shipped behavior.
