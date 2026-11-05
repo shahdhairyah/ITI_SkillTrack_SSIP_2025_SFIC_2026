@@ -25,6 +25,10 @@ import CurriculumPage from './features/competency/CurriculumPage';
 import AssessmentWorkspacePage from './features/competency/AssessmentWorkspacePage';
 import RemedialSupportPage from './features/remedial/RemedialSupportPage';
 import StudentSkillsPage from './features/competency/StudentSkillsPage';
+import ReportsHubPage from './features/reports/ReportsHubPage';
+import AuditLogPage from './features/audit/AuditLogPage';
+import UATCenterPage from './features/uat/UATCenterPage';
+import SystemHealthPage from './features/system/SystemHealthPage';
 import NotFoundPage from './features/misc/NotFoundPage';
 
 export default function App() {
@@ -47,6 +51,8 @@ export default function App() {
                 {/* Phase 4 & 5 Shared Routes */}
                 <Route path="curriculum" element={<CurriculumPage />} />
                 <Route path="remedials" element={<RemedialSupportPage />} />
+                {/* Phase 6 Reports Hub */}
+                <Route path="reports" element={<ReportsHubPage />} />
               </Route>
 
               {/* Phase 4 Instructor Assessments */}
@@ -61,11 +67,16 @@ export default function App() {
                 <Route path="admin/trades" element={<TradesPage />} />
                 <Route path="admin/academic-periods" element={<AcademicPeriodsPage />} />
                 <Route path="admin/batches" element={<BatchesPage />} />
+                {/* Phase 6 & 7 Admin & Monitoring Routes */}
+                <Route path="admin/audit-logs" element={<AuditLogPage />} />
+                <Route path="admin/uat" element={<UATCenterPage />} />
               </Route>
 
               <Route element={<RoleRoute roles={['administrator']} />}>
                 <Route path="admin/users" element={<UsersPage />} />
                 <Route path="admin/settings" element={<InstituteSettingsPage />} />
+                {/* Phase 8 Production Rollout & Health */}
+                <Route path="admin/system-health" element={<SystemHealthPage />} />
               </Route>
 
               <Route element={<RoleRoute roles={['instructor']} />}>
