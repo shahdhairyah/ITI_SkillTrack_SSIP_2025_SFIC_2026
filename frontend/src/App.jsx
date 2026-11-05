@@ -21,6 +21,10 @@ import SessionsPage from './features/attendance/SessionsPage';
 import AttendanceRegisterPage from './features/attendance/AttendanceRegisterPage';
 import AttendanceReportPage from './features/attendance/AttendanceReportPage';
 import StudentAttendancePage from './features/attendance/StudentAttendancePage';
+import CurriculumPage from './features/competency/CurriculumPage';
+import AssessmentWorkspacePage from './features/competency/AssessmentWorkspacePage';
+import RemedialSupportPage from './features/remedial/RemedialSupportPage';
+import StudentSkillsPage from './features/competency/StudentSkillsPage';
 import NotFoundPage from './features/misc/NotFoundPage';
 
 export default function App() {
@@ -40,6 +44,14 @@ export default function App() {
                 <Route path="sessions" element={<SessionsPage />} />
                 <Route path="sessions/:id/attendance" element={<AttendanceRegisterPage />} />
                 <Route path="attendance/report" element={<AttendanceReportPage />} />
+                {/* Phase 4 & 5 Shared Routes */}
+                <Route path="curriculum" element={<CurriculumPage />} />
+                <Route path="remedials" element={<RemedialSupportPage />} />
+              </Route>
+
+              {/* Phase 4 Instructor Assessments */}
+              <Route element={<RoleRoute roles={['administrator', 'instructor']} />}>
+                <Route path="assessments" element={<AssessmentWorkspacePage />} />
               </Route>
 
               <Route element={<RoleRoute roles={['administrator', 'monitoring_officer']} />}>
@@ -64,6 +76,7 @@ export default function App() {
               <Route element={<RoleRoute roles={['student']} />}>
                 <Route path="student/dashboard" element={<StudentDashboard />} />
                 <Route path="student/attendance" element={<StudentAttendancePage />} />
+                <Route path="student/skills" element={<StudentSkillsPage />} />
               </Route>
 
               <Route path="*" element={<NotFoundPage />} />

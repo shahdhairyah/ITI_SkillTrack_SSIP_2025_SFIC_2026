@@ -29,9 +29,12 @@ const NAV = {
     { to: '/admin/dashboard', label: 'Institute Dashboard', icon: LayoutDashboard },
     { to: '/sessions', label: 'Training Sessions & Labs', icon: CalendarDays },
     { to: '/attendance/report', label: 'Attendance Reports', icon: FileSpreadsheet },
+    { to: '/curriculum', label: 'Curriculum & Rubrics', icon: BookOpen },
+    { to: '/assessments', label: 'Practical Assessments', icon: Award },
+    { to: '/remedials', label: 'Remedial Support Tasks', icon: Activity },
     { to: '/admin/students', label: 'Students', icon: GraduationCap },
     { to: '/admin/instructors', label: 'Instructors', icon: Users },
-    { to: '/admin/trades', label: 'Trades & Departments', icon: BookOpen },
+    { to: '/admin/trades', label: 'Trades & Departments', icon: Building2 },
     { to: '/admin/academic-periods', label: 'Academic Periods', icon: CalendarDays },
     { to: '/admin/batches', label: 'Batches', icon: ClipboardList },
     { to: '/admin/users', label: 'User Roles & Access', icon: ShieldCheck },
@@ -39,21 +42,28 @@ const NAV = {
   ],
   instructor: [
     { to: '/instructor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/assessments', label: 'Practical Assessments', icon: Award },
+    { to: '/remedials', label: 'Remedial Support Tasks', icon: Activity },
     { to: '/sessions', label: 'Training Sessions & Labs', icon: CalendarDays },
     { to: '/attendance/report', label: 'Attendance Reports', icon: FileSpreadsheet },
+    { to: '/curriculum', label: 'Curriculum & Rubrics', icon: BookOpen },
     { to: '/instructor/batches', label: 'My Batches', icon: ClipboardList },
   ],
   student: [
     { to: '/student/dashboard', label: 'My Dashboard', icon: LayoutDashboard },
-    { to: '/student/attendance', label: 'My Attendance & Exams', icon: Award },
+    { to: '/student/skills', label: 'My Skills & Portfolio', icon: Award },
+    { to: '/student/attendance', label: 'My Attendance & Exams', icon: CalendarDays },
   ],
   monitoring_officer: [
     { to: '/admin/dashboard', label: 'Institute Overview', icon: LayoutDashboard },
+    { to: '/assessments', label: 'Practical Assessments', icon: Award },
+    { to: '/remedials', label: 'Remedial Monitoring', icon: Activity },
     { to: '/sessions', label: 'Training Sessions & Labs', icon: CalendarDays },
     { to: '/attendance/report', label: 'Attendance Reports', icon: FileSpreadsheet },
+    { to: '/curriculum', label: 'Curriculum & Rubrics', icon: BookOpen },
     { to: '/admin/students', label: 'Student Directory', icon: GraduationCap },
     { to: '/admin/instructors', label: 'Instructor Directory', icon: Users },
-    { to: '/admin/trades', label: 'Trades', icon: BookOpen },
+    { to: '/admin/trades', label: 'Trades', icon: Building2 },
     { to: '/admin/batches', label: 'Batches', icon: ClipboardList },
   ],
 };
@@ -86,7 +96,7 @@ export default function AppLayout() {
             <div className="logo-badge">ST</div>
             <div className="brand-text">
               <h1>ITI SkillTrack</h1>
-              <p>Phase 3 · Sessions & Attendance</p>
+              <p>Phase 5 · Competency & Remedial</p>
             </div>
           </Link>
           <button
