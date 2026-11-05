@@ -9,7 +9,7 @@ class RemedialController
 {
     private function user(): array
     {
-        return $GLOBALS['AUTH_USER'] ?? [];
+        return $GLOBALS['CURRENT_USER'] ?? ($GLOBALS['AUTH_USER'] ?? []);
     }
 
     private function body(): array

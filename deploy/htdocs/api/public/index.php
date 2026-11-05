@@ -235,6 +235,31 @@ $router->post('/api/v1/remedials', [\App\Controllers\RemedialController::class, 
 $router->post('/api/v1/remedials/{id}/review', [\App\Controllers\RemedialController::class, 'review'], $staffMw);
 $router->get('/api/v1/dashboard/stats', [\App\Controllers\RemedialController::class, 'dashboardStats'], $authMw);
 
+// ==========================================
+// PHASE 6: ADVANCED REPORTS, AUDIT LOG & HARDENING (REP-01 to REP-04, AUD-01 to AUD-03, SEC-01 to SEC-03)
+// ==========================================
+$router->get('/api/v1/audit-logs', [\App\Controllers\AuditController::class, 'index'], $authMw);
+$router->get('/api/v1/reports/attendance-summary', [\App\Controllers\ReportController::class, 'attendanceSummary'], $authMw);
+$router->get('/api/v1/reports/attendance-summary/export', [\App\Controllers\ReportController::class, 'exportAttendanceSummary'], $authMw);
+$router->get('/api/v1/reports/competency-mastery', [\App\Controllers\ReportController::class, 'competencyMastery'], $authMw);
+$router->get('/api/v1/reports/aitt-eligibility', [\App\Controllers\ReportController::class, 'aittEligibility'], $authMw);
+$router->get('/api/v1/reports/aitt-eligibility/export', [\App\Controllers\ReportController::class, 'exportAittEligibility'], $authMw);
+$router->post('/api/v1/evidence/upload', [\App\Controllers\EvidenceController::class, 'upload'], $staffMw);
+$router->get('/api/v1/evidence/{id}/download', [\App\Controllers\EvidenceController::class, 'download'], $authMw);
+
+// ==========================================
+// PHASE 7: USER ACCEPTANCE TESTING (UAT) & PARALLEL RECONCILIATION (UAT-01 to UAT-09)
+// ==========================================
+$router->get('/api/v1/system/uat/run', [\App\Controllers\SystemController::class, 'runUatSuite'], $authMw);
+$router->get('/api/v1/system/uat/reconciliation', [\App\Controllers\SystemController::class, 'reconciliation'], $authMw);
+
+// ==========================================
+// PHASE 8: PRODUCTION ROLLOUT, HEALTH MONITORING & TRADE EXPANSION (REL-01 to REL-07)
+// ==========================================
+$router->get('/api/v1/system/health/operational', [\App\Controllers\SystemController::class, 'operationalHealth'], $authMw);
+$router->post('/api/v1/system/rollout/trade', [\App\Controllers\SystemController::class, 'rolloutTrade'], $adminMw);
+$router->get('/api/v1/system/backup', [\App\Controllers\SystemController::class, 'backup'], $adminMw);
+
 // Dispatch request
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = $_SERVER['REQUEST_URI'] ?? '/';

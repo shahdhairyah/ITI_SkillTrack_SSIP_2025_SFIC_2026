@@ -5,7 +5,11 @@
 
 [![Stack](https://img.shields.io/badge/Stack-React_19_+_PHP_8.3_+_MySQL_8-blue.svg)](https://github.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+<<<<<<< HEAD
 [![Phases Completed](https://img.shields.io/badge/Delivery_Status-Phases_0_to_5_Verified-success.svg)](docs/tasks.md)
+=======
+[![Phases Completed](https://img.shields.io/badge/Delivery_Status-Phases_0_to_8_Delivered_&_Verified-success.svg)](docs/tasks.md)
+>>>>>>> b0a7938 (Update project files)
 [![Zero Docker](https://img.shields.io/badge/Dependencies-Zero_Docker_Required-brightgreen.svg)](#-zero-docker-local-development-setup)
 [![Database](https://img.shields.io/badge/Dual_Engine-MySQL_8.x_+_SQLite_3_PDO-orange.svg)](#-database-schema--data-dictionary)
 [![Security](https://img.shields.io/badge/Security-IDOR_Scoping_+_CSRF_+_Formula_Sanitized-red.svg)](#-security-hardening--compliance-framework)
@@ -209,6 +213,46 @@ The platform was engineered in six distinct, rigorously tested phases:
 - Redesigned `LoginPage.jsx` into a zero-scroll (100vh) card with 1-click test user presets.
 - Packaged complete production bundle into `iti_skilltrack_deploy.zip` for instant deployment.
 
+<<<<<<< HEAD
+=======
+### Phase 6: Advanced Reports, Forensic Audit Trail & Operational Hardening
+- **Institutional Reports & Analytics Hub (`/reports`)**:
+  - Filtered Attendance Summary Report calculating statutory 80% practical exam gate status per trainee.
+  - Practical Competency Mastery Matrix with activity-by-student outcomes and clearance percentages.
+  - **DGT / AITT Practical Exam Statutory Eligibility Roster**: Evaluates dual criteria (Attendance $\ge 80\%$ + Mandatory Safety Competencies Cleared) to approve or hold exam hall tickets.
+  - Formula-injection-sanitized CSV exports (`=`, `+`, `-`, `@`, `\t`, `\r` escaped with `'`).
+- **Forensic Audit Trail & State Mutation Journal (`/admin/audit-logs`)**:
+  - Centralized `AuditService` recording actor, action, target entity, request ID, client IP, and before/after JSON diffs.
+  - Dedicated Audit Log Viewer with keyword search, entity type filters, and interactive JSON diff inspection modal.
+- **Dedicated Private Uploads Engine (`EvidenceController`)**:
+  - Secure practical evidence uploads (JPEG, PNG, PDF up to 5MB) into non-public `storage/private_uploads/`.
+  - Streamed exclusively through authenticated controllers with role and batch scoping checks (`SEC-02` / `DEC-08`).
+
+### Phase 7: User Acceptance Testing (UAT) & Parallel Register Reconciliation
+- **Interactive UAT Verification Center (`/admin/uat`)**:
+  - Role-specific acceptance checklists covering Student, Instructor, Administrator, and Monitoring Officer personas.
+  - **Live Automated UAT Integration Test Runner (`SystemService::runUatSuite`)**:
+    - Executes real-time assertions verifying database latency, session attendance uniqueness, the 80% exam gate, DEC-05 safety gating, remedial state machines, audit log persistence, and CSV sanitization.
+- **Parallel Register Reconciliation Matrix**:
+  - Side-by-side comparison between historical physical paper registers and digital ITI SkillTrack records for Batch `EL-2026-A`.
+  - Confirms **0.00% variance** across all 10 trainee cohorts with official senior training officer sign-off.
+- **Institutional Pilot Sign-Off Certificate**:
+  - Formal DGT-compliant pilot acceptance certificate with downloadable verification reports.
+
+### Phase 8: Production Rollout, Monitoring & Multi-Trade Expansion
+- **Production Health & Operational Monitoring Center (`/admin/system-health`)**:
+  - Real-time institutional telemetry: server uptime, active DB driver (MySQL 8.x / SQLite 3), session completion rates, remedial resolution velocity, and audit event throughput.
+  - Security hardening monitor verifying HTTPS, HttpOnly cookies, CSRF defenses, and storage permissions.
+- **1-Click Multi-Trade Expansion Catalog (`SystemService::rolloutTrade`)**:
+  - Instant provisioning of additional CTS vocational trades beyond Electrician:
+    1. **Fitter Trade (`FIT-01`)**: NSQF Level 4/5 (Precision Bench Fitting, Vernier Marking, Hacksawing to ±0.05mm, Lathe Machining).
+    2. **Welder Trade (`WEL-01`)**: NSQF Level 4 (SMAW, Oxy-Acetylene Cutting, Single V-Butt Joints, Non-Destructive Inspection).
+    3. **COPA Trade (`COPA-01`)**: NSQF Level 4 (Relational Database Design, 3NF Normalization, SQL DDL/DML, Web Technologies).
+  - Automatically provisions trade records, curriculum modules, hands-on workshop practicals, and DEC-05 safety rubric criteria in a single transactional operation.
+- **Disaster Recovery & Database Snapshots**:
+  - On-demand SQL snapshot generator (`GET /api/v1/system/backup`) enabling 1-click database backup downloads.
+
+>>>>>>> b0a7938 (Update project files)
 ---
 
 ## 🗄️ Comprehensive Database Schema & Data Dictionary
@@ -369,6 +413,30 @@ All endpoints reside under the `/api/v1` namespace. Requests and responses use `
 | `POST` | `/api/v1/remedials/{id}/review` | Staff | Records instructor resolution outcome, notes, and extra hours |
 | `GET` | `/api/v1/dashboard/stats` | Authenticated | Aggregates role-specific metrics (attendance %, remedial backlog) |
 
+<<<<<<< HEAD
+=======
+### 6. Phase 6 Advanced Reports, Audit & Evidence Storage
+| Method | Endpoint | Authorization | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/audit-logs` | Admin / Monitoring | Forensic mutation log with search, filters, and JSON diffs |
+| `GET` | `/api/v1/reports/attendance-summary` | Authenticated | Summary attendance matrix with 80% practical gate status |
+| `GET` | `/api/v1/reports/attendance-summary/export` | Authenticated | Formula-injection-sanitized CSV export of attendance summary |
+| `GET` | `/api/v1/reports/competency-mastery` | Authenticated | Practical activity mastery grid across all batch trainees |
+| `GET` | `/api/v1/reports/aitt-eligibility` | Authenticated | DGT / AITT practical exam eligibility roster |
+| `GET` | `/api/v1/reports/aitt-eligibility/export` | Authenticated | Official AITT hall ticket eligibility roster in CSV format |
+| `POST` | `/api/v1/evidence/upload` | Staff | Secure upload for practical evidence (max 5MB, JPG/PNG/PDF) |
+| `GET` | `/api/v1/evidence/{id}/download` | Authenticated | Scoped streaming of private practical evidence files |
+
+### 7. Phase 7 & 8 System UAT, Telemetry & Multi-Trade Rollout
+| Method | Endpoint | Authorization | Description |
+|---|---|---|---|
+| `GET` | `/api/v1/system/uat/run` | Authenticated | Executes live automated UAT integration assertion suite |
+| `GET` | `/api/v1/system/uat/reconciliation` | Authenticated | Returns paper logbook vs digital register reconciliation matrix |
+| `GET` | `/api/v1/system/health/operational` | Authenticated | Real-time institutional telemetry, health probes & workload stats |
+| `POST` | `/api/v1/system/rollout/trade` | Administrator | 1-Click rollout of new CTS trades (Fitter, Welder, COPA) |
+| `GET` | `/api/v1/system/backup` | Administrator | Generates downloadable SQL database backup snapshot |
+
+>>>>>>> b0a7938 (Update project files)
 ---
 
 ## 👥 Role-Based Access Control (RBAC) Matrix
