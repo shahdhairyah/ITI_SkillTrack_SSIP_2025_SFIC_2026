@@ -1,0 +1,52 @@
+# ITI SkillTrack - Nginx Server Configuration Example
+# Place in /etc/nginx/sites-available/iti_skilltrack and symlink to /etc/nginx/sites-enabled/
+
+server {
+    listen 80;
+    server_name example.com www.example.com;
+    root /var/www/iti_skilltrack/htdocs;
+
+    index index.html index.php;
+    charset utf-8;
+
+    # Gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml;
+
+    # Protect hidden files and backend internal directories
+    location ~ /\. {
+        deny all;
+    }
+
+    location ~ ^/api/(src|database)/ {
+        deny all;
+        return 404;
+    }
+
+    # API routes -> PHP-FPM
+    location ^~ /api/ {
+        try_files $uri $uri/ /api/public/index.php?$query_string;
+
+        location ~ \.php$ {
+            include fastcgi_params;
+            fastcgi_pass unix:/run/php/php8.3-fpm.sock; # Adjust PHP-FPM socket version if needed
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_intercept_errors off;
+            fastcgi_buffer_size 16k;
+            fastcgi_buffers 4 16k;
+        }
+    }
+
+    # Static assets caching
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # React SPA routing fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+

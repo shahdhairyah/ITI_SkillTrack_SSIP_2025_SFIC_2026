@@ -1,0 +1,169 @@
+{
+  "institute": {
+    "id": 1,
+    "name": "Model Industrial Training Institute",
+    "code": "ITI-MODEL-01",
+    "timezone": "Asia/Kolkata",
+    "status": "active"
+  },
+  "roles": [
+    { "id": 1, "key": "administrator", "label": "Institute Administrator" },
+    { "id": 2, "key": "instructor", "label": "Vocational Instructor / Trainer" },
+    { "id": 3, "key": "student", "label": "Enrolled Trainee / Student" },
+    { "id": 4, "key": "monitoring_officer", "label": "Monitoring Officer (Read-Only)" }
+  ],
+  "users": [
+    { "id": 1, "username": "admin@itiskilltrack.org", "role": "administrator", "name": "Suresh Patel" },
+    { "id": 2, "username": "rajesh.sharma@itiskilltrack.org", "role": "instructor", "name": "Rajesh Sharma" },
+    { "id": 101, "username": "amit.kumar@student.iti.org", "role": "student", "name": "Amit Kumar" },
+    { "id": 102, "username": "priya.verma@student.iti.org", "role": "student", "name": "Priya Verma" },
+    { "id": 103, "username": "rahul.singh@student.iti.org", "role": "student", "name": "Rahul Singh" },
+    { "id": 104, "username": "sneha.patil@student.iti.org", "role": "student", "name": "Sneha Patil" },
+    { "id": 105, "username": "vikram.mehta@student.iti.org", "role": "student", "name": "Vikram Mehta" },
+    { "id": 106, "username": "pooja.sharma@student.iti.org", "role": "student", "name": "Pooja Sharma" },
+    { "id": 107, "username": "anil.yadav@student.iti.org", "role": "student", "name": "Anil Yadav" },
+    { "id": 108, "username": "divya.nair@student.iti.org", "role": "student", "name": "Divya Nair" },
+    { "id": 109, "username": "manoj.joshi@student.iti.org", "role": "student", "name": "Manoj Joshi" },
+    { "id": 110, "username": "kavita.reddy@student.iti.org", "role": "student", "name": "Kavita Reddy" }
+  ],
+  "students": [
+    { "id": 1, "user_id": 101, "admission_no": "ADM-2026-001", "name": "Amit Kumar", "gender": "male", "category": "General", "phone": "9800000001" },
+    { "id": 2, "user_id": 102, "admission_no": "ADM-2026-002", "name": "Priya Verma", "gender": "female", "category": "OBC", "phone": "9800000002" },
+    { "id": 3, "user_id": 103, "admission_no": "ADM-2026-003", "name": "Rahul Singh", "gender": "male", "category": "SC", "phone": "9800000003" },
+    { "id": 4, "user_id": 104, "admission_no": "ADM-2026-004", "name": "Sneha Patil", "gender": "female", "category": "General", "phone": "9800000004" },
+    { "id": 5, "user_id": 105, "admission_no": "ADM-2026-005", "name": "Vikram Mehta", "gender": "male", "category": "General", "phone": "9800000005" },
+    { "id": 6, "user_id": 106, "admission_no": "ADM-2026-006", "name": "Pooja Sharma", "gender": "female", "category": "General", "phone": "9800000006" },
+    { "id": 7, "user_id": 107, "admission_no": "ADM-2026-007", "name": "Anil Yadav", "gender": "male", "category": "OBC", "phone": "9800000007" },
+    { "id": 8, "user_id": 108, "admission_no": "ADM-2026-008", "name": "Divya Nair", "gender": "female", "category": "General", "phone": "9800000008" },
+    { "id": 9, "user_id": 109, "admission_no": "ADM-2026-009", "name": "Manoj Joshi", "gender": "male", "category": "General", "phone": "9800000009" },
+    { "id": 10, "user_id": 110, "admission_no": "ADM-2026-010", "name": "Kavita Reddy", "gender": "female", "category": "OBC", "phone": "9800000010" }
+  ],
+  "instructor": {
+    "id": 1,
+    "user_id": 2,
+    "employee_code": "EMP-ITI-042",
+    "name": "Rajesh Sharma",
+    "qualification": "Diploma in Electrical Engineering + CITS Certified",
+    "status": "active"
+  },
+  "academic_period": {
+    "id": 1,
+    "institute_id": 1,
+    "name": "2026-2027 Academic Session",
+    "starts_on": "2026-08-01",
+    "ends_on": "2027-07-31",
+    "status": "active"
+  },
+  "batch": {
+    "id": 1,
+    "trade_id": 1,
+    "academic_period_id": 1,
+    "name": "EL-2026-A",
+    "section": "A",
+    "shift": "Morning (08:30 - 15:30)",
+    "status": "active"
+  },
+  "training_sessions": [
+    {
+      "id": 1,
+      "batch_id": 1,
+      "instructor_id": 1,
+      "session_date": "2026-10-27",
+      "start_time": "09:00:00",
+      "end_time": "13:00:00",
+      "topic": "Practical Lab: Workshop Safety, PPE, and Hand Tool Inspection",
+      "status": "submitted"
+    },
+    {
+      "id": 2,
+      "batch_id": 1,
+      "instructor_id": 1,
+      "session_date": "2026-10-28",
+      "start_time": "09:00:00",
+      "end_time": "13:00:00",
+      "topic": "Practical Lab: Wire Stripping and Western Union Joint Execution",
+      "status": "submitted"
+    },
+    {
+      "id": 3,
+      "batch_id": 1,
+      "instructor_id": 1,
+      "session_date": "2026-10-29",
+      "start_time": "09:00:00",
+      "end_time": "13:00:00",
+      "topic": "Practical Lab: Staircase Wiring Installation and Insulation Testing",
+      "status": "draft"
+    }
+  ],
+  "sample_attendance_session_1": [
+    { "session_id": 1, "student_id": 1, "status": "present" },
+    { "session_id": 1, "student_id": 2, "status": "present" },
+    { "session_id": 1, "student_id": 3, "status": "late", "notes": "Arrived 09:15 with bus transit delay slip" },
+    { "session_id": 1, "student_id": 4, "status": "present" },
+    { "session_id": 1, "student_id": 5, "status": "present" },
+    { "session_id": 1, "student_id": 6, "status": "present" },
+    { "session_id": 1, "student_id": 7, "status": "absent", "notes": "Unexcused absence" },
+    { "session_id": 1, "student_id": 8, "status": "present" },
+    { "session_id": 1, "student_id": 9, "status": "excused", "notes": "Medical leave sanctioned by Principal" },
+    { "session_id": 1, "student_id": 10, "status": "present" }
+  ],
+  "sample_assessments": [
+    {
+      "attempt_id": 1,
+      "student_id": 1,
+      "activity_code": "ACT-ELE-101",
+      "assessor_id": 1,
+      "assessed_at": "2026-10-27T12:30:00Z",
+      "criteria_scores": [
+        { "criterion_code": "CRIT-101-1", "score": 5, "comment": "Excellent safety gear adherence" },
+        { "criterion_code": "CRIT-101-2", "score": 4, "comment": "Proper tool check" },
+        { "criterion_code": "CRIT-101-3", "score": 4, "comment": "Clean stripping without nicking" },
+        { "criterion_code": "CRIT-101-4", "score": 5, "comment": "Workstation left spotless" }
+      ],
+      "total_score": 18,
+      "max_possible": 20,
+      "percentage": 90.0,
+      "derived_status": "competent",
+      "feedback": "Demonstrated competent tool control and verified PPE compliance."
+    },
+    {
+      "attempt_id": 2,
+      "student_id": 3,
+      "activity_code": "ACT-ELE-101",
+      "assessor_id": 1,
+      "assessed_at": "2026-10-27T12:45:00Z",
+      "criteria_scores": [
+        { "criterion_code": "CRIT-101-1", "score": 3, "comment": "Forgot safety goggles during initial check" },
+        { "criterion_code": "CRIT-101-2", "score": 3, "comment": "Selected incorrect plier gauge" },
+        { "criterion_code": "CRIT-101-3", "score": 2, "comment": "Slight conductor nick on copper core" },
+        { "criterion_code": "CRIT-101-4", "score": 4, "comment": "Tools returned safely" }
+      ],
+      "total_score": 12,
+      "max_possible": 20,
+      "percentage": 60.0,
+      "derived_status": "needs_practice",
+      "feedback": "Core safety criteria not met (score 3/5). Needs practice with wire stripper adjustment to prevent conductor damage."
+    }
+  ],
+  "sample_remedial": {
+    "id": 1,
+    "student_id": 3,
+    "activity_code": "ACT-ELE-101",
+    "assigned_by": 1,
+    "reason": "Failed to meet mandatory wire stripping and safety criteria (60% score).",
+    "instructions": "Practice calibration on 1.5 sq mm and 2.5 sq mm copper wire samples under supervision in Lab Bay 3.",
+    "due_on": "2026-11-03",
+    "status": "assigned"
+  },
+  "sample_audit_log": {
+    "id": 1,
+    "actor_user_id": 2,
+    "action": "attendance_corrected",
+    "entity_type": "attendance_records",
+    "entity_id": 3,
+    "request_id": "req-98831a2c",
+    "before_json": "{\"status\":\"absent\"}",
+    "after_json": "{\"status\":\"late\",\"correction_reason\":\"Student arrived at 09:15 with transit slip\"}",
+    "created_at": "2026-10-27T10:30:00Z"
+  }
+}
