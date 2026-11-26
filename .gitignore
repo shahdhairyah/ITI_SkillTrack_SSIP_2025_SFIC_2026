@@ -29,3 +29,6 @@ storage/private_uploads/*
 .DS_Store
 Thumbs.db
 *.zip
+
+*.zip
+*.sqlite
