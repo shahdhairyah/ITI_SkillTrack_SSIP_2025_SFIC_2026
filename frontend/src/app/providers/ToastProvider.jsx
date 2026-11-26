@@ -13,22 +13,37 @@ export function ToastProvider({ children }) {
   }, []);
 
   const push = useCallback(
-    (message, type = 'success') => {
+    (messageOrOpts, type = 'success') => {
+      let message = messageOrOpts;
+      let tone = type;
+      if (typeof messageOrOpts === 'object' && messageOrOpts !== null) {
+        message = messageOrOpts.message || '';
+        tone = messageOrOpts.tone || messageOrOpts.type || 'success';
+      }
+      if (tone === 'danger') tone = 'error';
       const id = nextId++;
-      setToasts((current) => [...current, { id, message, type }]);
+      setToasts((current) => [...current, { id, message, type: tone }]);
       window.setTimeout(() => dismiss(id), 4200);
     },
     [dismiss],
   );
 
-  const value = useMemo(
-    () => ({
-      success: (message) => push(message, 'success'),
-      error: (message) => push(message, 'error'),
-      info: (message) => push(message, 'info'),
-    }),
+  const showToast = useCallback(
+    (message, type = 'success') => {
+      push(message, type);
+    },
     [push],
   );
+
+  const value = useMemo(() => {
+    const fn = (messageOrOpts) => push(messageOrOpts);
+    fn.success = (message) => push(message, 'success');
+    fn.error = (message) => push(message, 'error');
+    fn.info = (message) => push(message, 'info');
+    fn.showToast = showToast;
+    fn.toast = fn;
+    return fn;
+  }, [push, showToast]);
 
   const icons = {
     success: <CheckCircle2 size={18} />,
