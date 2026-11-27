@@ -36,12 +36,12 @@ class ReportService
 
         // Fetch all students enrolled in this batch
         $sStmt = $pdo->prepare("
-            SELECT s.id as student_id, s.admission_number, u.first_name, u.last_name, u.email, e.roll_number
+            SELECT s.id as student_id, s.admission_no as admission_number, s.name, u.email, s.admission_no as roll_number
             FROM enrollments e
             JOIN students s ON e.student_id = s.id
             JOIN users u ON s.user_id = u.id
             WHERE e.batch_id = ?
-            ORDER BY e.roll_number ASC, u.first_name ASC
+            ORDER BY s.admission_no ASC, s.name ASC
         ");
         $sStmt->execute([$batchId]);
         $students = $sStmt->fetchAll();
@@ -108,7 +108,7 @@ class ReportService
                 'student_id' => $sId,
                 'roll_number' => $stu['roll_number'],
                 'admission_number' => $stu['admission_number'],
-                'name' => trim($stu['first_name'] . ' ' . $stu['last_name']),
+                'name' => $stu['name'],
                 'email' => $stu['email'],
                 'total_sessions' => $totalSessions,
                 'present' => $present,
@@ -147,34 +147,33 @@ class ReportService
 
         // Fetch trade & activities
         $actStmt = $pdo->prepare("
-            SELECT pa.id, pa.activity_number, pa.title, pa.passing_percentage, m.title as module_title, m.module_number
+            SELECT pa.id, pa.code as activity_number, pa.title, 75 as passing_percentage, m.title as module_title, m.sequence_no as module_number
             FROM practical_activities pa
             JOIN modules m ON pa.module_id = m.id
             JOIN batches b ON m.trade_id = b.trade_id
             WHERE b.id = ?
-            ORDER BY m.module_number ASC, pa.activity_number ASC
+            ORDER BY m.sequence_no ASC, pa.code ASC
         ");
         $actStmt->execute([$batchId]);
         $activities = $actStmt->fetchAll();
 
         // Fetch students
         $sStmt = $pdo->prepare("
-            SELECT s.id as student_id, s.admission_number, u.first_name, u.last_name, e.roll_number
+            SELECT s.id as student_id, s.admission_no as admission_number, s.name, s.admission_no as roll_number
             FROM enrollments e
             JOIN students s ON e.student_id = s.id
-            JOIN users u ON s.user_id = u.id
             WHERE e.batch_id = ?
-            ORDER BY e.roll_number ASC, u.first_name ASC
+            ORDER BY s.admission_no ASC, s.name ASC
         ");
         $sStmt->execute([$batchId]);
         $students = $sStmt->fetchAll();
 
         // Fetch all assessments for this batch
         $assStmt = $pdo->prepare("
-            SELECT a.*, s.id as student_id
+            SELECT a.*, aa.student_id, aa.activity_id as practical_activity_id
             FROM assessments a
-            JOIN enrollments e ON a.student_id = e.student_id
-            JOIN students s ON a.student_id = s.id
+            JOIN activity_attempts aa ON a.attempt_id = aa.id
+            JOIN enrollments e ON aa.student_id = e.student_id
             WHERE e.batch_id = ?
             ORDER BY a.assessed_at DESC
         ");
@@ -197,7 +196,7 @@ class ReportService
             $studentRow = [
                 'student_id' => $stu['student_id'],
                 'roll_number' => $stu['roll_number'],
-                'name' => trim($stu['first_name'] . ' ' . $stu['last_name']),
+                'name' => $stu['name'],
                 'activities' => []
             ];
 

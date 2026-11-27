@@ -124,62 +124,6 @@ export default function UATCenterPage() {
 
       {/* Tabs */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-1.5 shadow-sm inline-flex flex-wrap gap-1">
-          {/* Tab buttons with badge counts */}
-          <button
-            type="button"
-            onClick={() => setActiveTab('runner')}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === 'runner'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            <Play className="w-3.5 h-3.5" />
-            Automated Assertion Suite
-            {/* badge showing total tests */}
-            {uatResults && (
-              <Badge tone="gray" className="ml-1.5 text-xs font-medium">
-                {uatResults.total_tests}
-              </Badge>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('reconciliation')}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === 'reconciliation'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            <FileSpreadsheet className="w-3.5 h-3.5" />
-            Paper vs Digital Register Reconciliation
-            {/* badge showing rows count */}
-            {reconciliation?.rows && (
-              <Badge tone="gray" className="ml-1.5 text-xs font-medium">
-                {reconciliation.rows.length}
-              </Badge>
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab('signoff')}
-            className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
-              activeTab === 'signoff'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-            }`}
-          >
-            <ClipboardCheck className="w-3.5 h-3.5" />
-            Role Acceptance & Pilot Sign‑Off
-            {/* badge with signed count */}
-            {reconciliation?.rows && (
-              <Badge tone="gray" className="ml-1.5 text-xs font-medium">
-                {reconciliation.rows.filter(r => r.reconciliation_status === 'Certified').length}
-              </Badge>
-            )}
-          </button>
-        </div>
         <button
           type="button"
           onClick={() => setActiveTab('runner')}
@@ -191,6 +135,13 @@ export default function UATCenterPage() {
         >
           <Play className="w-3.5 h-3.5" />
           Automated Assertion Suite
+          {uatResults && (
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'runner' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'
+            }`}>
+              {uatResults.total_tests}
+            </span>
+          )}
         </button>
         <button
           type="button"
@@ -203,6 +154,13 @@ export default function UATCenterPage() {
         >
           <FileSpreadsheet className="w-3.5 h-3.5" />
           Paper vs Digital Register Reconciliation
+          {reconciliation?.rows && (
+            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold ${
+              activeTab === 'reconciliation' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-600'
+            }`}>
+              {reconciliation.rows.length}
+            </span>
+          )}
         </button>
         <button
           type="button"

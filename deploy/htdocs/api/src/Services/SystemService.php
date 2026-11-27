@@ -218,18 +218,17 @@ class SystemService
         $pdo = Database::connection();
 
         $students = $pdo->query("
-            SELECT s.id, s.admission_number, u.first_name, u.last_name, e.roll_number
+            SELECT s.id, s.admission_no as admission_number, s.name, s.admission_no as roll_number
             FROM enrollments e
             JOIN students s ON e.student_id = s.id
-            JOIN users u ON s.user_id = u.id
             WHERE e.batch_id = {$batchId}
-            ORDER BY e.roll_number ASC
+            ORDER BY s.admission_no ASC
         ")->fetchAll();
 
         // Simulated benchmark baseline from physical register log
         $reconciliationRows = [];
         foreach ($students as $stu) {
-            $name = trim($stu['first_name'] . ' ' . $stu['last_name']);
+            $name = $stu['name'];
             
             // Query digital attendance
             $att = $pdo->query("
@@ -291,7 +290,7 @@ class SystemService
 
         $storagePath = __DIR__ . '/../../storage/private_uploads';
         $diskFree = @disk_free_space($storagePath);
-        $diskTotal = @disk_total_space($storagePath);
+        $diskTotal = @\disk_total_space($storagePath);
 
         return [
             'system' => [

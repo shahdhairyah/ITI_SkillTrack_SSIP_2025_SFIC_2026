@@ -135,16 +135,17 @@ export default function ReportsHubPage() {
   }) || [];
 
   return (
-    <div className="page-wrapper">
+    <div className="space-y-6 max-w-7xl mx-auto pb-8">
       <PageHeader
+        eyebrow="Phase 6 · Statutory Analytics"
         title="Institutional Reports & Statutory Analytics"
-        subtitle="Phase 6 · Authoritative CTS Attendance, Competency Mastery, and DGT AITT Practical Eligibility Rosters"
+        description="Authoritative CTS Attendance, Competency Mastery, and DGT AITT Practical Eligibility Rosters"
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <select
               value={batchId}
               onChange={(e) => setBatchId(Number(e.target.value))}
-              className="px-3 py-2 text-sm bg-white border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-700"
             >
               {batches.map((b) => (
                 <option key={b.id} value={b.id}>
@@ -153,21 +154,23 @@ export default function ReportsHubPage() {
               ))}
             </select>
             <Button
-              variant="outline"
+              variant="secondary"
               size="sm"
-              icon={RefreshCw}
               onClick={loadActiveReport}
               disabled={loading}
+              className="inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold"
             >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <Button
               variant="primary"
               size="sm"
-              icon={Download}
               onClick={handleExport}
               disabled={exporting || loading}
+              className="inline-flex items-center gap-1.5 rounded-xl text-xs font-semibold shadow-sm"
             >
+              <Download className="w-3.5 h-3.5" />
               {exporting ? 'Exporting...' : 'Export CSV (Sanitized)'}
             </Button>
           </div>
@@ -175,110 +178,116 @@ export default function ReportsHubPage() {
       />
 
       {/* Report Tabs */}
-      <div className="flex border-b border-slate-200 mb-6 gap-2">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-1.5 shadow-sm inline-flex flex-wrap gap-1">
         <button
+          type="button"
           onClick={() => setActiveTab('attendance')}
-          className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
             activeTab === 'attendance'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          <CalendarDays className="w-4 h-4" />
+          <CalendarDays className="w-3.5 h-3.5" />
           Attendance & 80% Statutory Gate
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('competency')}
-          className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
             activeTab === 'competency'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          <Award className="w-4 h-4" />
+          <Award className="w-3.5 h-3.5" />
           Practical Competency Matrix
         </button>
         <button
+          type="button"
           onClick={() => setActiveTab('aitt')}
-          className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+          className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 ${
             activeTab === 'aitt'
-              ? 'border-blue-600 text-blue-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'bg-blue-600 text-white shadow-sm'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
           }`}
         >
-          <FileCheck2 className="w-4 h-4" />
+          <FileCheck2 className="w-3.5 h-3.5" />
           AITT Practical Exam Eligibility Roster
         </button>
       </div>
 
       {loading ? (
-        <div className="p-12 text-center text-slate-500">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-12 text-center text-slate-500">
           <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-blue-600" />
-          <p>Compiling institutional records and evaluating statutory formulas...</p>
+          <p className="text-sm font-medium">Compiling institutional records and evaluating statutory formulas...</p>
         </div>
       ) : (
         <>
           {/* TAB 1: ATTENDANCE SUMMARY */}
           {activeTab === 'attendance' && attendanceData && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="stat-grid stat-grid-4">
                 <StatCard
-                  title="Total Enrolled Trainees"
+                  label="Total Enrolled Trainees"
                   value={attendanceData.total_students}
                   icon={FileSpreadsheet}
-                  tone="neutral"
+                  tone="blue"
                 />
                 <StatCard
-                  title="Qualified for Practical Exam"
+                  label="Qualified for Practical Exam"
                   value={attendanceData.summary?.total_eligible || 0}
                   icon={CheckCircle2}
-                  tone="success"
-                  note="Attendance >= 80%"
+                  tone="green"
+                  hint="Attendance >= 80%"
                 />
                 <StatCard
-                  title="Attendance Shortfall"
+                  label="Attendance Shortfall"
                   value={attendanceData.summary?.total_at_risk || 0}
                   icon={ShieldAlert}
-                  tone="warning"
-                  note="Below statutory 80%"
+                  tone="amber"
+                  hint="Below statutory 80%"
                 />
                 <StatCard
-                  title="Cohort Average Rate"
+                  label="Cohort Average Rate"
                   value={`${attendanceData.summary?.cohort_average || 0}%`}
                   icon={CalendarDays}
-                  tone="info"
-                  note={`${attendanceData.total_sessions} scheduled sessions`}
+                  tone="blue"
+                  hint={`${attendanceData.total_sessions} scheduled sessions`}
                 />
               </div>
 
               {/* Filters */}
-              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm">
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                   <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Status:</span>
-                  <div className="flex rounded-lg border border-slate-200 p-0.5 bg-slate-50">
+                  <div className="flex rounded-xl border border-slate-200 p-0.5 bg-slate-50">
                     <button
+                      type="button"
                       onClick={() => setAttendanceFilter('all')}
-                      className={`px-3 py-1 text-xs rounded-md font-medium transition ${
-                        attendanceFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'
+                      className={`px-3 py-1 text-xs rounded-lg font-semibold transition ${
+                        attendanceFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      All ({attendanceData.students?.length})
+                      All ({attendanceData.students?.length || 0})
                     </button>
                     <button
+                      type="button"
                       onClick={() => setAttendanceFilter('eligible')}
-                      className={`px-3 py-1 text-xs rounded-md font-medium transition ${
-                        attendanceFilter === 'eligible' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500'
+                      className={`px-3 py-1 text-xs rounded-lg font-semibold transition ${
+                        attendanceFilter === 'eligible' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      Eligible ({attendanceData.summary?.total_eligible})
+                      Eligible ({attendanceData.summary?.total_eligible || 0})
                     </button>
                     <button
+                      type="button"
                       onClick={() => setAttendanceFilter('at_risk')}
-                      className={`px-3 py-1 text-xs rounded-md font-medium transition ${
-                        attendanceFilter === 'at_risk' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-500'
+                      className={`px-3 py-1 text-xs rounded-lg font-semibold transition ${
+                        attendanceFilter === 'at_risk' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       }`}
                     >
-                      Shortfall ({attendanceData.summary?.total_at_risk})
+                      Shortfall ({attendanceData.summary?.total_at_risk || 0})
                     </button>
                   </div>
                 </div>
@@ -290,16 +299,16 @@ export default function ReportsHubPage() {
                     placeholder="Search by name or roll..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               {/* Table */}
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm text-slate-700">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+                    <thead className="bg-slate-50/80 border-b border-slate-200/80 text-xs uppercase tracking-wider text-slate-500">
                       <tr>
                         <th className="py-3 px-4">Roll</th>
                         <th className="py-3 px-4">Trainee</th>
@@ -313,34 +322,42 @@ export default function ReportsHubPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {filteredAttendanceStudents.map((s) => (
-                        <tr key={s.student_id} className="hover:bg-slate-50/50">
-                          <td className="py-3 px-4 font-mono font-medium text-slate-600">{s.roll_number}</td>
-                          <td className="py-3 px-4">
-                            <div className="font-medium text-slate-900">{s.name}</div>
-                            <div className="text-xs text-slate-400 font-mono">{s.admission_number}</div>
-                          </td>
-                          <td className="py-3 px-4 text-center font-medium">{s.total_sessions}</td>
-                          <td className="py-3 px-4 text-center text-emerald-600 font-medium">{s.present}</td>
-                          <td className="py-3 px-4 text-center text-blue-600">{s.late}</td>
-                          <td className="py-3 px-4 text-center text-slate-400">{s.excused}</td>
-                          <td className="py-3 px-4 text-center text-rose-600 font-medium">{s.absent}</td>
-                          <td className="py-3 px-4 text-right">
-                            <span
-                              className={`font-semibold font-mono text-base ${
-                                s.is_eligible ? 'text-emerald-700' : 'text-amber-700'
-                              }`}
-                            >
-                              {s.attendance_percentage}%
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <Badge tone={s.is_eligible ? 'success' : 'warning'}>
-                              {s.is_eligible ? 'Qualified (>=80%)' : 'Shortfall (<80%)'}
-                            </Badge>
+                      {filteredAttendanceStudents.length ? (
+                        filteredAttendanceStudents.map((s) => (
+                          <tr key={s.student_id} className="hover:bg-slate-50/50">
+                            <td className="py-3 px-4 font-mono font-medium text-slate-600">{s.roll_number}</td>
+                            <td className="py-3 px-4">
+                              <div className="font-semibold text-slate-900">{s.name}</div>
+                              <div className="text-xs text-slate-400 font-mono">{s.admission_number}</div>
+                            </td>
+                            <td className="py-3 px-4 text-center font-medium">{s.total_sessions}</td>
+                            <td className="py-3 px-4 text-center text-emerald-600 font-medium">{s.present}</td>
+                            <td className="py-3 px-4 text-center text-blue-600">{s.late}</td>
+                            <td className="py-3 px-4 text-center text-slate-400">{s.excused}</td>
+                            <td className="py-3 px-4 text-center text-rose-600 font-medium">{s.absent}</td>
+                            <td className="py-3 px-4 text-right">
+                              <span
+                                className={`font-semibold font-mono text-base ${
+                                  s.is_eligible ? 'text-emerald-700' : 'text-amber-700'
+                                }`}
+                              >
+                                {s.attendance_percentage}%
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <Badge tone={s.is_eligible ? 'success' : 'warning'}>
+                                {s.is_eligible ? 'Qualified (>=80%)' : 'Shortfall (<80%)'}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={9} className="py-10 text-center text-sm text-slate-400">
+                            No trainee attendance records match the current filter.
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                 </div>
@@ -351,34 +368,34 @@ export default function ReportsHubPage() {
           {/* TAB 2: COMPETENCY MASTERY MATRIX */}
           {activeTab === 'competency' && competencyData && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="stat-grid stat-grid-3">
                 <StatCard
-                  title="Practical Activities"
+                  label="Practical Activities"
                   value={competencyData.metrics?.total_activities || 0}
                   icon={Award}
-                  tone="info"
-                  note="Curriculum syllabus practicals"
+                  tone="blue"
+                  hint="Curriculum syllabus practicals"
                 />
                 <StatCard
-                  title="Evaluations Recorded"
+                  label="Evaluations Recorded"
                   value={competencyData.metrics?.total_evaluations || 0}
                   icon={FileCheck2}
-                  tone="neutral"
-                  note="Across all batch attempts"
+                  tone="blue"
+                  hint="Across all batch attempts"
                 />
                 <StatCard
-                  title="Competency Clearance Rate"
+                  label="Competency Clearance Rate"
                   value={`${competencyData.metrics?.competency_clearance_rate || 0}%`}
                   icon={CheckCircle2}
-                  tone="success"
-                  note="DEC-05 Criteria >= 75% + 100% Safety"
+                  tone="green"
+                  hint="DEC-05 Criteria >= 75% + 100% Safety"
                 />
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm text-slate-700">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+                    <thead className="bg-slate-50/80 border-b border-slate-200/80 text-xs uppercase tracking-wider text-slate-500">
                       <tr>
                         <th className="py-3 px-4 w-16">Roll</th>
                         <th className="py-3 px-4 w-52">Trainee Name</th>
@@ -396,7 +413,7 @@ export default function ReportsHubPage() {
                       {competencyData.students?.map((stu) => (
                         <tr key={stu.student_id} className="hover:bg-slate-50/50">
                           <td className="py-3 px-4 font-mono font-medium text-slate-600">{stu.roll_number}</td>
-                          <td className="py-3 px-4 font-medium text-slate-900">{stu.name}</td>
+                          <td className="py-3 px-4 font-semibold text-slate-900">{stu.name}</td>
                           {competencyData.activities?.map((act) => {
                             const result = stu.activities[act.id];
                             const status = result?.status || 'not_attempted';
@@ -415,7 +432,7 @@ export default function ReportsHubPage() {
                                   </span>
                                 )}
                                 {status === 'not_attempted' && (
-                                  <span className="inline-block px-2 py-0.5 text-xs text-slate-400 bg-slate-100 rounded">
+                                  <span className="inline-block px-2 py-0.5 text-xs text-slate-400 bg-slate-100 rounded-md">
                                     Pending
                                   </span>
                                 )}
@@ -434,47 +451,47 @@ export default function ReportsHubPage() {
           {/* TAB 3: AITT STATUTORY PRACTICAL ELIGIBILITY ROSTER */}
           {activeTab === 'aitt' && aittData && (
             <div className="space-y-6">
-              <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+              <div className="p-4 bg-blue-50 border border-blue-200/80 rounded-2xl flex items-start gap-3">
                 <FileCheck2 className="w-6 h-6 text-blue-600 shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-blue-950 text-sm">
+                  <h3 className="font-bold text-blue-950 text-sm">
                     Directorate General of Training (DGT) — All India Trade Test (AITT) Statutory Qualification
                   </h3>
-                  <p className="text-xs text-blue-700 mt-1 leading-relaxed">
+                  <p className="text-xs text-blue-800 mt-1 leading-relaxed">
                     Under statutory Craftsmen Training Scheme rules, a trainee is approved for AITT Practical Hall Ticket
-                    issuance only if they maintain <strong>≥ 80.0% practical attendance</strong> and have cleared all
+                    issuance only if they maintain <strong>≥ 80.0% practical attendance</strong> and have cleared all{' '}
                     <strong>mandatory workshop safety criteria</strong> with no open remedial sanctions.
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="stat-grid stat-grid-3">
                 <StatCard
-                  title="Total Candidates Evaluated"
+                  label="Total Candidates Evaluated"
                   value={aittData.total_trainees}
                   icon={FileSpreadsheet}
-                  tone="neutral"
+                  tone="blue"
                 />
                 <StatCard
-                  title="Approved for Hall Ticket"
+                  label="Approved for Hall Ticket"
                   value={aittData.total_qualified}
                   icon={CheckCircle2}
-                  tone="success"
-                  note="Dual criteria fully satisfied"
+                  tone="green"
+                  hint="Dual criteria fully satisfied"
                 />
                 <StatCard
-                  title="Hall Ticket Held"
+                  label="Hall Ticket Held"
                   value={aittData.total_disqualified}
                   icon={UserX}
-                  tone="critical"
-                  note="Attendance or safety deficiency"
+                  tone="amber"
+                  hint="Attendance or safety deficiency"
                 />
               </div>
 
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm text-slate-700">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+                    <thead className="bg-slate-50/80 border-b border-slate-200/80 text-xs uppercase tracking-wider text-slate-500">
                       <tr>
                         <th className="py-3 px-4">Roll</th>
                         <th className="py-3 px-4">Trainee</th>
@@ -490,7 +507,7 @@ export default function ReportsHubPage() {
                         <tr key={r.student_id} className="hover:bg-slate-50/50">
                           <td className="py-3 px-4 font-mono font-medium text-slate-600">{r.roll_number}</td>
                           <td className="py-3 px-4">
-                            <div className="font-medium text-slate-900">{r.name}</div>
+                            <div className="font-semibold text-slate-900">{r.name}</div>
                             <div className="text-xs text-slate-400 font-mono">{r.admission_number}</div>
                           </td>
                           <td className="py-3 px-4 text-center">
@@ -511,7 +528,7 @@ export default function ReportsHubPage() {
                             </Badge>
                           </td>
                           <td className="py-3 px-4 text-center">
-                            <Badge tone={r.aitt_practical_verdict === 'QUALIFIED' ? 'success' : 'critical'}>
+                            <Badge tone={r.aitt_practical_verdict === 'QUALIFIED' ? 'success' : 'danger'}>
                               {r.aitt_practical_verdict}
                             </Badge>
                           </td>

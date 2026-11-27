@@ -101,10 +101,11 @@ class AuditService
                 a.after_json,
                 a.created_at,
                 u.username as actor_username,
-                u.first_name as actor_first_name,
-                u.last_name as actor_last_name
+                COALESCE(i.name, s.name, u.username) as actor_name
             FROM audit_logs a
             LEFT JOIN users u ON a.actor_user_id = u.id
+            LEFT JOIN instructors i ON i.user_id = u.id
+            LEFT JOIN students s ON s.user_id = u.id
             WHERE {$whereClause}
             ORDER BY a.id DESC
             LIMIT {$limit} OFFSET {$offset}
@@ -119,7 +120,7 @@ class AuditService
             $items[] = [
                 'id' => (int)$row['id'],
                 'actor_user_id' => $row['actor_user_id'] ? (int)$row['actor_user_id'] : null,
-                'actor_name' => $row['actor_first_name'] ? trim($row['actor_first_name'] . ' ' . $row['actor_last_name']) : ($row['actor_username'] ?? 'System / Anonymous'),
+                'actor_name' => $row['actor_name'] ?: ($row['actor_username'] ?? 'System / Anonymous'),
                 'action' => $row['action'],
                 'entity_type' => $row['entity_type'],
                 'entity_id' => (int)$row['entity_id'],
