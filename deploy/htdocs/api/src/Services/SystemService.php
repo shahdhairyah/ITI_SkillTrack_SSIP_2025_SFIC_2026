@@ -289,8 +289,8 @@ class SystemService
         $totalAuditEvents = (int)$pdo->query("SELECT COUNT(*) FROM audit_logs")->fetchColumn();
 
         $storagePath = __DIR__ . '/../../storage/private_uploads';
-        $diskFree = @disk_free_space($storagePath);
-        $diskTotal = @\disk_total_space($storagePath);
+        $diskFree = function_exists('disk_free_space') ? @\disk_free_space($storagePath) : false;
+        $diskTotal = function_exists('disk_total_space') ? @\disk_total_space($storagePath) : false;
 
         return [
             'system' => [

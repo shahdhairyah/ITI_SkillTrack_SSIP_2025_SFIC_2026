@@ -242,8 +242,10 @@ $router->get('/api/v1/audit-logs', [\App\Controllers\AuditController::class, 'in
 $router->get('/api/v1/reports/attendance-summary', [\App\Controllers\ReportController::class, 'attendanceSummary'], $authMw);
 $router->get('/api/v1/reports/attendance-summary/export', [\App\Controllers\ReportController::class, 'exportAttendanceSummary'], $authMw);
 $router->get('/api/v1/reports/competency-mastery', [\App\Controllers\ReportController::class, 'competencyMastery'], $authMw);
+$router->get('/api/v1/reports/competency-mastery/export', [\App\Controllers\ReportController::class, 'exportCompetencyMastery'], $authMw);
 $router->get('/api/v1/reports/aitt-eligibility', [\App\Controllers\ReportController::class, 'aittEligibility'], $authMw);
 $router->get('/api/v1/reports/aitt-eligibility/export', [\App\Controllers\ReportController::class, 'exportAittEligibility'], $authMw);
+$router->get('/api/v1/reports/remedial-summary', [\App\Controllers\ReportController::class, 'remedialSummary'], $authMw);
 $router->post('/api/v1/evidence/upload', [\App\Controllers\EvidenceController::class, 'upload'], $staffMw);
 $router->get('/api/v1/evidence/{id}/download', [\App\Controllers\EvidenceController::class, 'download'], $authMw);
 
