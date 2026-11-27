@@ -271,6 +271,13 @@ $router->post('/api/v1/quizzes', [\App\Controllers\QuizController::class, 'store
 $router->patch('/api/v1/quizzes/{id}/status', [\App\Controllers\QuizController::class, 'toggleStatus'], $staffMw);
 $router->get('/api/v1/quizzes/{id}/results', [\App\Controllers\QuizController::class, 'results'], $staffMw);
 $router->post('/api/v1/quizzes/{id}/submit', [\App\Controllers\QuizController::class, 'submit'], $authCsrfMw);
+$router->delete('/api/v1/quizzes/{id}', [\App\Controllers\QuizController::class, 'destroy'], $staffMw);
+
+// ==========================================
+// PHASE 10: GUJ-ITI DIRECTORY
+// ==========================================
+$router->get('/api/v1/guj-iti', [\App\Controllers\GujiTiController::class, 'index'], $adminMw);
+$router->post('/api/v1/guj-iti', [\App\Controllers\GujiTiController::class, 'store'], $adminMw);
 
 // Dispatch request
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';

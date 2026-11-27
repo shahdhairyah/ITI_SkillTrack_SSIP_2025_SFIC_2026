@@ -31,6 +31,7 @@ import UATCenterPage from './features/uat/UATCenterPage';
 import SystemHealthPage from './features/system/SystemHealthPage';
 import QuizManagementPage from './features/quiz/QuizManagementPage';
 import StudentQuizPage from './features/quiz/StudentQuizPage';
+import AdminGujiTiPage from './features/gujiti/AdminGujiTiPage';
 import NotFoundPage from './features/misc/NotFoundPage';
 
 export default function App() {
@@ -80,6 +81,8 @@ export default function App() {
                 <Route path="admin/settings" element={<InstituteSettingsPage />} />
                 {/* Phase 8 Production Rollout & Health */}
                 <Route path="admin/system-health" element={<SystemHealthPage />} />
+                {/* Phase 10 GUJ-ITI Directory */}
+                <Route path="admin/guj-iti" element={<AdminGujiTiPage />} />
               </Route>
 
               <Route element={<RoleRoute roles={['instructor']} />}>

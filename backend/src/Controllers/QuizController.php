@@ -62,4 +62,16 @@ class QuizController
         $updated = QuizService::toggleStatus($id, $status, $this->user());
         Response::success($updated, ['message' => 'Quiz status updated.']);
     }
+
+    public function destroy(array $params): void
+    {
+        $id = (int)($params['id'] ?? 0);
+        try {
+            QuizService::deleteQuiz($id, $this->user());
+            Response::success(null, ['message' => 'Quiz deleted successfully.']);
+        } catch (\Exception $e) {
+            $code = str_contains($e->getMessage(), 'not found') ? 404 : 403;
+            Response::error($e->getMessage(), 'DELETE_ERROR', [], $code);
+        }
+    }
 }

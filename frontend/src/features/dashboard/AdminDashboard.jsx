@@ -29,26 +29,26 @@ export default function AdminDashboard() {
 
   const { data, loading, error, reload } = useApiResource(async () => {
     const requests = [
-      api.get('/students'),
-      api.get('/instructors'),
-      api.get('/trades'),
-      api.get('/academic-periods'),
-      api.get('/batches'),
-      api.get('/departments'),
+      api.get('/students').catch(() => []),
+      api.get('/instructors').catch(() => []),
+      api.get('/trades').catch(() => []),
+      api.get('/academic-periods').catch(() => []),
+      api.get('/batches').catch(() => []),
+      api.get('/departments').catch(() => []),
       api.get('/sessions').catch(() => []),
       api.get('/curriculum').catch(() => []),
       api.get('/remedials').catch(() => []),
     ];
-    if (isAdmin) requests.push(api.get('/users'));
+    if (isAdmin) requests.push(api.get('/users').catch(() => []));
 
     const [students, instructors, trades, periods, batches, departments, sessions, curriculum, remedials, users] = await Promise.all(requests);
     return {
-      students,
-      instructors,
-      trades,
-      periods,
-      batches,
-      departments,
+      students: students || [],
+      instructors: instructors || [],
+      trades: trades || [],
+      periods: periods || [],
+      batches: batches || [],
+      departments: departments || [],
       sessions: sessions || [],
       curriculum: curriculum || [],
       remedials: remedials || [],
@@ -90,7 +90,15 @@ export default function AdminDashboard() {
         badge="Phase 5 Operational"
         actions={
           isAdmin ? (
-            <div className="flex gap-2" style={{ display: 'flex', gap: '8px' }}>
+            <div className="flex gap-2" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+              <Link to="/admin/guj-iti" className="btn btn-secondary">
+                <ClipboardList size={16} />
+                GUJ‑ITI Directory
+              </Link>
+              <Link to="/quizzes" className="btn btn-secondary">
+                <CheckCircle2 size={16} />
+                Batch Quizzes
+              </Link>
               <Link to="/curriculum" className="btn btn-secondary">
                 <BookOpen size={16} />
                 Curriculum Rubrics

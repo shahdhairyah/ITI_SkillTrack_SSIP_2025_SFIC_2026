@@ -640,4 +640,60 @@ class QuizService
 
         return ['id' => $quizId, 'status' => $status];
     }
+
+    /**
+     * Delete a quiz and cascade-delete questions, attempts, and attempt answers.
+     */
+    public static function deleteQuiz(int $quizId, array $currentUser): void
+    {
+        $db = Database::getConnection();
+        self::ensureSchema($db);
+
+        $role   = $currentUser['role'] ?? '';
+        $userId = (int)($currentUser['id'] ?? 0);
+        $instId = (int)($currentUser['institute_id'] ?? 1);
+
+        $stmt = $db->prepare('SELECT batch_id, institute_id FROM quizzes WHERE id = :qid AND institute_id = :inst_id LIMIT 1');
+        $stmt->execute([':qid' => $quizId, ':inst_id' => $instId]);
+        $quiz = $stmt->fetch();
+
+        if (!$quiz) {
+            throw new \RuntimeException('Quiz not found.');
+        }
+
+        $batchId = (int)$quiz['batch_id'];
+
+        if ($role === 'administrator') {
+            // admin can delete any quiz in their institute
+        } elseif ($role === 'instructor') {
+            if (!self::instructorOwnsBatch($db, $userId, $batchId)) {
+                throw new \RuntimeException('Forbidden: You are not assigned to this batch.');
+            }
+        } else {
+            throw new \RuntimeException('Permission denied.');
+        }
+
+        $db->beginTransaction();
+        try {
+            // Delete attempt answers first
+            $db->prepare('DELETE FROM quiz_attempt_answers WHERE attempt_id IN (SELECT id FROM quiz_attempts WHERE quiz_id = :qid)')->execute([':qid' => $quizId]);
+            // Delete attempts
+            $db->prepare('DELETE FROM quiz_attempts WHERE quiz_id = :qid')->execute([':qid' => $quizId]);
+            // Delete questions
+            $db->prepare('DELETE FROM quiz_questions WHERE quiz_id = :qid')->execute([':qid' => $quizId]);
+            // Delete quiz
+            $db->prepare('DELETE FROM quizzes WHERE id = :qid')->execute([':qid' => $quizId]);
+            $db->commit();
+        } catch (\Throwable $e) {
+            $db->rollBack();
+            throw $e;
+        }
+
+        // Audit log
+        try {
+            if (class_exists(\App\Services\AuditService::class)) {
+                \App\Services\AuditService::log($userId, 'QUIZ_DELETED', 'quiz', $quizId, null, ['batch_id' => $batchId]);
+            }
+        } catch (\Throwable $ignored) {}
+    }
 }

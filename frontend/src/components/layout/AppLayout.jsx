@@ -45,6 +45,7 @@ const NAV = {
     { to: '/admin/academic-periods', label: 'Academic Periods', icon: CalendarDays },
     { to: '/admin/batches', label: 'Batches', icon: ClipboardList },
     { to: '/admin/users', label: 'User Roles & Access', icon: ShieldCheck },
+    { to: '/admin/guj-iti', label: 'GUJ‑ITI Directory', icon: Building2 },
     { to: '/admin/settings', label: 'Institute Settings', icon: Settings },
   ],
   instructor: [

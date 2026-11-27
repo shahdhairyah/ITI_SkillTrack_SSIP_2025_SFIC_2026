@@ -153,6 +153,19 @@ export default function QuizManagementPage() {
     }
   }
 
+  async function handleDeleteQuiz(quiz) {
+    if (!window.confirm(`Are you sure you want to delete "${quiz.title}"? This will also delete all questions and student submissions. This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await api.delete(`/quizzes/${quiz.id}`);
+      showToast('Quiz deleted successfully.', 'success');
+      await loadData();
+    } catch (err) {
+      showToast(err.message || 'Failed to delete quiz', 'error');
+    }
+  }
+
   async function openResults(quiz) {
     setResultsModal({ open: true, quiz, rows: [], loading: true });
     try {
@@ -412,6 +425,9 @@ export default function QuizManagementPage() {
                         </Button>
                         <Button variant="secondary" size="sm" onClick={() => handleToggleStatus(quiz)}>
                           {quiz.status === 'published' ? 'Close' : 'Reopen'}
+                        </Button>
+                        <Button variant="ghost-danger" size="sm" onClick={() => handleDeleteQuiz(quiz)}>
+                          <Trash2 size={14} /> Delete
                         </Button>
                       </div>
                     </td>
