@@ -540,11 +540,12 @@ ALTER TABLE remedial_assignments
 -- 6. Evidence uploads table for DEC-08
 CREATE TABLE IF NOT EXISTS evidence_uploads (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    institute_id INT NOT NULL,
+    institute_id INT NULL DEFAULT 1,
     attempt_id INT NULL,
     assessment_id INT NULL,
-    uploaded_by INT NOT NULL,
+    uploaded_by INT NULL,
     file_name VARCHAR(255) NOT NULL,
+    original_name VARCHAR(255) NULL,
     file_path VARCHAR(500) NOT NULL,
     mime_type VARCHAR(100) NOT NULL,
     file_size INT NOT NULL,
@@ -553,7 +554,7 @@ CREATE TABLE IF NOT EXISTS evidence_uploads (
     FOREIGN KEY (institute_id) REFERENCES institutes(id) ON DELETE CASCADE,
     FOREIGN KEY (attempt_id) REFERENCES activity_attempts(id) ON DELETE SET NULL,
     FOREIGN KEY (assessment_id) REFERENCES assessments(id) ON DELETE SET NULL,
-    FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE RESTRICT
+    FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- 7. Add Competency policy setting to system_settings
