@@ -294,7 +294,7 @@ export default function SessionsPage() {
       />
 
       {/* KPI Summary */}
-      <div className="stat-grid stat-grid-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Sessions"
           value={sessions.length}
@@ -469,7 +469,7 @@ export default function SessionsPage() {
             return (
               <div
                 key={session.id}
-                className="group relative bg-white rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:shadow-md transition-all duration-200 p-5 overflow-hidden"
+                className="group relative bg-white rounded-xl border border-slate-200/80 hover:border-blue-400 hover:shadow-lg transition-all duration-200 p-5 overflow-hidden hover:scale-105"
               >
                 {/* Left Accent Bar */}
                 <div

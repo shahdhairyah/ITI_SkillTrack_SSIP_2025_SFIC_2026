@@ -1,6 +1,6 @@
 export default function StatCard({ label, value, hint, icon: Icon, tone = 'blue' }) {
   return (
-    <div className="card stat-card">
+    <div className="card stat-card bg-white shadow-md rounded-xl p-4 transition-transform hover:scale-105 hover:shadow-lg">
       <div>
         <div className="stat-label">{label}</div>
         <div className="stat-val">{value}</div>
