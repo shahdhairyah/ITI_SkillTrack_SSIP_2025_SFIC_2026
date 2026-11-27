@@ -283,27 +283,31 @@ class SystemService
         $completedSessions = (int)$pdo->query("SELECT COUNT(*) FROM training_sessions WHERE status = 'completed'")->fetchColumn();
         $totalTrainees = (int)$pdo->query("SELECT COUNT(*) FROM students WHERE status = 'active'")->fetchColumn();
         $totalTrades = (int)$pdo->query("SELECT COUNT(*) FROM trades WHERE status = 'active'")->fetchColumn();
+        $provisionedTradeCodes = $pdo->query("SELECT code FROM trades WHERE status = 'active' ORDER BY code ASC")->fetchAll(\PDO::FETCH_COLUMN);
         $totalAssessments = (int)$pdo->query("SELECT COUNT(*) FROM assessments")->fetchColumn();
         $openRemedials = (int)$pdo->query("SELECT COUNT(*) FROM remedial_assignments WHERE status IN ('assigned', 'in_progress')")->fetchColumn();
         $resolvedRemedials = (int)$pdo->query("SELECT COUNT(*) FROM remedial_assignments WHERE status = 'completed'")->fetchColumn();
         $totalAuditEvents = (int)$pdo->query("SELECT COUNT(*) FROM audit_logs")->fetchColumn();
 
         $storagePath = __DIR__ . '/../../storage/private_uploads';
-        $diskFree = function_exists('disk_free_space') ? @\disk_free_space($storagePath) : false;
-        $diskTotal = function_exists('disk_total_space') ? @\disk_total_space($storagePath) : false;
+        $probePath = is_dir($storagePath) ? $storagePath : __DIR__;
+        $diskFree = function_exists('disk_free_space') ? @\disk_free_space($probePath) : false;
+        $diskTotal = function_exists('disk_total_space') ? @\disk_total_space($probePath) : false;
 
         return [
             'system' => [
                 'status' => 'HEALTHY',
                 'server_time' => date('Y-m-d H:i:s T'),
                 'php_version' => PHP_VERSION,
-                'environment' => 'production_ready',
+                'environment' => getenv('APP_ENV') ?: 'production_ready',
                 'database_driver' => $driver,
                 'database_version' => $serverVersion,
+                'database_status' => 'connected',
                 'uptime_mode' => 'continuous_service'
             ],
             'metrics' => [
                 'total_trades' => $totalTrades,
+                'provisioned_trade_codes' => $provisionedTradeCodes ?: [],
                 'active_trainees' => $totalTrainees,
                 'total_sessions' => $totalSessions,
                 'session_completion_rate' => $totalSessions > 0 ? round(($completedSessions / $totalSessions) * 100, 1) : 100.0,
@@ -315,7 +319,7 @@ class SystemService
             'infrastructure' => [
                 'disk_free_bytes' => $diskFree ?: 10737418240, // 10GB default
                 'disk_total_bytes' => $diskTotal ?: 53687091200, // 50GB default
-                'storage_writable' => is_writable($storagePath),
+                'storage_writable' => is_dir($storagePath) && is_writable($storagePath),
                 'session_cookie_httponly' => true,
                 'csrf_protection' => true,
                 'formula_injection_defense' => true

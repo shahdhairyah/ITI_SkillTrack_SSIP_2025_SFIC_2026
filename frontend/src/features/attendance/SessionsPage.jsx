@@ -41,7 +41,11 @@ const EMPTY_FORM = () => ({
   topic: '',
   session_type: 'practical',
   notes: '',
+  participants: [],
+  location: '',
+  status: 'scheduled',
 });
+
 
 const STATUS_TABS = [
   { key: '', label: 'All' },

@@ -116,18 +116,39 @@ class SystemController
             foreach ($tables as $t) {
                 echo "-- Table: " . $t['name'] . "\n";
                 echo $t['sql'] . ";\n\n";
-                $rows = $pdo->query("SELECT * FROM " . $t['name'])->fetchAll(\PDO::FETCH_ASSOC);
+                $rows = $pdo->query("SELECT * FROM `" . str_replace('`', '``', $t['name']) . "`")->fetchAll(\PDO::FETCH_ASSOC);
                 foreach ($rows as $r) {
                     $cols = array_keys($r);
                     $vals = array_map(function($v) use ($pdo) {
                         return $v === null ? 'NULL' : $pdo->quote((string)$v);
                     }, array_values($r));
-                    echo "INSERT INTO " . $t['name'] . " (" . implode(', ', $cols) . ") VALUES (" . implode(', ', $vals) . ");\n";
+                    echo "INSERT INTO `" . $t['name'] . "` (`" . implode('`, `', $cols) . "`) VALUES (" . implode(', ', $vals) . ");\n";
                 }
                 echo "\n";
             }
         } else {
-            echo "-- MySQL production dump placeholder\n";
+            // MySQL / MariaDB full schema + data snapshot
+            $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
+            echo "SET FOREIGN_KEY_CHECKS = 0;\n\n";
+            foreach ($tables as $tableName) {
+                $safeTable = str_replace('`', '``', (string)$tableName);
+                $createRow = $pdo->query("SHOW CREATE TABLE `{$safeTable}`")->fetch(\PDO::FETCH_NUM);
+                echo "-- Table: {$safeTable}\n";
+                echo "DROP TABLE IF EXISTS `{$safeTable}`;\n";
+                if (!empty($createRow[1])) {
+                    echo $createRow[1] . ";\n\n";
+                }
+                $rows = $pdo->query("SELECT * FROM `{$safeTable}`")->fetchAll(\PDO::FETCH_ASSOC);
+                foreach ($rows as $r) {
+                    $cols = array_map(fn($c) => '`' . str_replace('`', '``', (string)$c) . '`', array_keys($r));
+                    $vals = array_map(function($v) use ($pdo) {
+                        return $v === null ? 'NULL' : $pdo->quote((string)$v);
+                    }, array_values($r));
+                    echo "INSERT INTO `{$safeTable}` (" . implode(', ', $cols) . ") VALUES (" . implode(', ', $vals) . ");\n";
+                }
+                echo "\n";
+            }
+            echo "SET FOREIGN_KEY_CHECKS = 1;\n";
         }
         exit;
     }

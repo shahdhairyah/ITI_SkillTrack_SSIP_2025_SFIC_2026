@@ -1,61 +1,111 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Activity,
-  AlertTriangle,
   Building2,
   CheckCircle2,
-  Database,
   Download,
   FolderSync,
   HardDrive,
   Layers,
   PlusCircle,
   RefreshCw,
-  Server,
   ShieldCheck,
-  Terminal,
   Zap,
 } from 'lucide-react';
-import { api } from '../../lib/api';
+import { api, API_BASE } from '../../lib/api';
 import { useToast } from '../../app/providers/ToastProvider';
 import PageHeader from '../../components/common/PageHeader';
 import StatCard from '../../components/common/StatCard';
 import Badge from '../../components/common/Badge';
 import Button from '../../components/common/Button';
+import Loader from '../../components/common/Loader';
+import ErrorState from '../../components/common/ErrorState';
+import TradeDeployDropdown, { EXPANSION_TRADES } from '../../components/system/TradeDeployDropdown';
+
+export function normalizeHealthPayload(raw) {
+  const data = raw && typeof raw === 'object' ? raw : {};
+  const system = data.system || {};
+  const metrics = data.metrics || {};
+  const infrastructure = data.infrastructure || {};
+
+  const diskTotalBytes = Number(infrastructure.disk_total_bytes) || 53687091200;
+  const diskFreeBytes = Number(infrastructure.disk_free_bytes) || 10737418240;
+
+  return {
+    system: {
+      status: system.status || 'HEALTHY',
+      server_time: system.server_time || '—',
+      php_version: system.php_version || '—',
+      environment: system.environment || 'production',
+      database_driver: system.database_driver || 'sqlite',
+      database_version: system.database_version || '—',
+      database_status: system.database_status || 'connected',
+      uptime_mode: system.uptime_mode || 'continuous_service',
+    },
+    metrics: {
+      total_trades: Number(metrics.total_trades ?? 0),
+      provisioned_trade_codes: Array.isArray(metrics.provisioned_trade_codes)
+        ? metrics.provisioned_trade_codes
+        : [],
+      active_trainees: Number(metrics.active_trainees ?? 0),
+      total_sessions: Number(metrics.total_sessions ?? 0),
+      session_completion_rate: Number(metrics.session_completion_rate ?? 0),
+      total_assessments_logged: Number(metrics.total_assessments_logged ?? 0),
+      open_remedial_backlog: Number(metrics.open_remedial_backlog ?? 0),
+      resolved_remedial_count: Number(metrics.resolved_remedial_count ?? 0),
+      total_audit_events: Number(metrics.total_audit_events ?? 0),
+    },
+    infrastructure: {
+      disk_free_bytes: diskFreeBytes,
+      disk_total_bytes: diskTotalBytes,
+      storage_writable: Boolean(infrastructure.storage_writable),
+      session_cookie_httponly: infrastructure.session_cookie_httponly !== false,
+      csrf_protection: infrastructure.csrf_protection !== false,
+      formula_injection_defense: infrastructure.formula_injection_defense !== false,
+    },
+  };
+}
+
+function formatGigabytes(bytes) {
+  return (bytes / (1024 * 1024 * 1024)).toFixed(1);
+}
 
 export default function SystemHealthPage() {
   const { showToast } = useToast();
   const [healthData, setHealthData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [deployingTrade, setDeployingTrade] = useState(null);
   const [downloadingBackup, setDownloadingBackup] = useState(false);
 
-  useEffect(() => {
-    loadHealth();
-  }, []);
-
-  async function loadHealth() {
+  const loadHealth = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await api.get('/system/health/operational');
-      if (res.status === 'success') {
-        setHealthData(res.data);
-      }
+      const data = await api.get('/system/health/operational');
+      setHealthData(normalizeHealthPayload(data));
     } catch (e) {
+      setError(e);
       showToast(e.message || 'Failed to retrieve system diagnostics', 'error');
     } finally {
       setLoading(false);
     }
-  }
+  }, [showToast]);
+
+  useEffect(() => {
+    loadHealth();
+  }, [loadHealth]);
 
   async function handleDeployTrade(tradeCode, tradeTitle) {
     setDeployingTrade(tradeCode);
     try {
-      const res = await api.post('/system/rollout/trade', { trade_code: tradeCode });
-      if (res.status === 'success') {
-        showToast(`Trade ${tradeTitle} (${tradeCode}) and curriculum successfully provisioned!`, 'success');
-        await loadHealth();
-      }
+      const result = await api.post('/system/rollout/trade', { trade_code: tradeCode });
+      showToast(
+        result?.message || `Trade ${tradeTitle} (${tradeCode}) and curriculum provisioned!`,
+        'success',
+      );
+      await loadHealth();
     } catch (e) {
       showToast(e.message || 'Trade rollout failed', 'error');
     } finally {
@@ -66,12 +116,21 @@ export default function SystemHealthPage() {
   async function handleDownloadBackup() {
     setDownloadingBackup(true);
     try {
-      const res = await fetch('/api/v1/system/backup', {
+      const res = await fetch(`${API_BASE}/system/backup`, {
         credentials: 'include',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
 
-      if (!res.ok) throw new Error('Backup generation failed');
+      if (!res.ok) {
+        let message = `Backup generation failed (HTTP ${res.status})`;
+        try {
+          const payload = await res.json();
+          if (payload?.error?.message) message = payload.error.message;
+        } catch {
+          // Non-JSON error response
+        }
+        throw new Error(message);
+      }
 
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
@@ -91,271 +150,280 @@ export default function SystemHealthPage() {
     }
   }
 
+  const provisionedSet = new Set(healthData?.metrics?.provisioned_trade_codes || []);
+  const diskTotal = healthData?.infrastructure?.disk_total_bytes || 1;
+  const diskFree = healthData?.infrastructure?.disk_free_bytes || 0;
+  const diskUsedPct = Math.min(100, Math.max(0, Math.round(((diskTotal - diskFree) / diskTotal) * 100)));
+
   return (
-    <div className="page-wrapper">
+    <div className="system-health-page">
       <PageHeader
+        eyebrow="Phase 8 · Production Telemetry"
         title="Production Health & Operational Monitoring Center"
-        subtitle="Phase 8 · Real-Time Institutional Telemetry, Multi-Trade Rollout Manager & Disaster Recovery"
+        description="Real-time institutional telemetry, multi-trade rollout manager, and disaster recovery controls."
         actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              icon={RefreshCw}
-              onClick={loadHealth}
-              disabled={loading}
-            >
+          <>
+            <Button variant="secondary" size="sm" onClick={loadHealth} disabled={loading}>
+              <RefreshCw size={15} className={loading ? 'spin-icon' : ''} />
               Refresh Telemetry
             </Button>
             <Button
               variant="primary"
               size="sm"
-              icon={Download}
               onClick={handleDownloadBackup}
+              loading={downloadingBackup}
               disabled={downloadingBackup}
             >
-              {downloadingBackup ? 'Dumping DB...' : 'Generate DB Snapshot'}
+              {!downloadingBackup ? <Download size={15} /> : null}
+              {downloadingBackup ? 'Dumping DB…' : 'Generate DB Snapshot'}
             </Button>
-          </div>
+          </>
         }
       />
 
-      {loading ? (
-        <div className="p-12 text-center text-slate-500">
-          <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-3 text-blue-600" />
-          <p>Querying institutional runtime telemetry and health probes...</p>
+      {loading && !healthData ? (
+        <div className="card">
+          <Loader label="Querying institutional runtime telemetry and health probes…" />
         </div>
+      ) : error && !healthData ? (
+        <ErrorState
+          error={error}
+          onRetry={loadHealth}
+          title="Could not load system health telemetry"
+        />
       ) : healthData ? (
-        <div className="space-y-8">
+        <div className="system-health-stack">
           {/* Section 1: Live Status Banner */}
-          <div className="p-5 bg-gradient-to-r from-emerald-950 to-slate-900 rounded-2xl text-white shadow-lg border border-emerald-800/40 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-7 h-7 text-emerald-400" />
+          <section className="health-banner" aria-label="Live system status">
+            <div className="health-banner-main">
+              <div className="health-banner-icon">
+                <ShieldCheck size={28} />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs uppercase font-mono tracking-wider text-emerald-300 font-semibold">
+                <div className="health-status-row">
+                  <span className="health-pulse-dot" aria-hidden="true" />
+                  <span className="health-status-label">
                     System State: {healthData.system.status}
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-white mt-0.5">
-                  Production Operational Readiness: 100% Verified
-                </h3>
-                <p className="text-xs text-slate-300 mt-1">
-                  Engine: <strong className="text-white font-mono">{healthData.system.database_driver.toUpperCase()}</strong> · PHP Runtime: <strong className="text-white font-mono">{healthData.system.php_version}</strong> · Host Time: {healthData.system.server_time}
+                <h2 className="health-banner-title">
+                  Production Operational Readiness: Verified
+                </h2>
+                <p className="health-banner-meta">
+                  Engine: <strong>{healthData.system.database_driver.toUpperCase()}</strong> ({healthData.system.database_status}) · PHP Runtime:{' '}
+                  <strong>{healthData.system.php_version}</strong> · Host Time: {healthData.system.server_time}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <div className="text-right">
-                <div className="text-xs text-slate-400">Total Audit Volume</div>
-                <div className="text-lg font-bold font-mono text-emerald-400">
-                  {healthData.metrics.total_audit_events} Events
-                </div>
-              </div>
+            <div className="health-banner-stat">
+              <span className="health-banner-stat-label">Total Audit Volume</span>
+              <strong className="health-banner-stat-value">
+                {healthData.metrics.total_audit_events} Events
+              </strong>
             </div>
-          </div>
+          </section>
 
           {/* Section 2: Core Operational Metrics */}
-          <div>
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <Activity className="w-4 h-4 text-blue-600" />
-              Institutional Telemetry & Workload Metrics
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <section aria-label="Institutional telemetry and workload metrics">
+            <div className="section-heading">
+              <h2>
+                <Activity size={17} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                Institutional Telemetry &amp; Workload Metrics
+              </h2>
+              <p>
+                {healthData.metrics.active_trainees} active trainees · Environment: {healthData.system.environment}
+              </p>
+            </div>
+            <div className="stat-grid">
               <StatCard
-                title="Active CTS Trades"
+                label="Active CTS Trades"
                 value={healthData.metrics.total_trades}
                 icon={Building2}
-                tone="info"
-                note="Curricula provisioned"
+                tone="blue"
+                hint="Curricula provisioned"
               />
               <StatCard
-                title="Session Completion"
+                label="Session Completion"
                 value={`${healthData.metrics.session_completion_rate}%`}
                 icon={CheckCircle2}
-                tone="success"
-                note={`${healthData.metrics.total_sessions} scheduled sessions`}
+                tone="green"
+                hint={`${healthData.metrics.total_sessions} scheduled sessions`}
               />
               <StatCard
-                title="Practical Assessments"
+                label="Practical Assessments"
                 value={healthData.metrics.total_assessments_logged}
                 icon={Layers}
-                tone="neutral"
-                note="Rubric evaluations logged"
+                tone="violet"
+                hint="Rubric evaluations logged"
               />
               <StatCard
-                title="Remedial Resolution Velocity"
+                label="Remedial Resolution"
                 value={`${healthData.metrics.resolved_remedial_count} Done`}
                 icon={Zap}
-                tone="success"
-                note={`${healthData.metrics.open_remedial_backlog} open in queue`}
+                tone="amber"
+                hint={`${healthData.metrics.open_remedial_backlog} open in queue`}
               />
             </div>
-          </div>
+          </section>
 
           {/* Section 3: Multi-Trade Expansion Manager */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <section className="card" aria-label="Multi-trade expansion catalog">
+            <div className="trade-section-header">
               <div>
-                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                  <PlusCircle className="w-5 h-5 text-blue-600" />
-                  Phase 8 Multi-Trade Expansion Catalog (1-Click Institutional Rollout)
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <h2 className="trade-section-title">
+                  <PlusCircle size={18} />
+                  Multi-Trade Expansion Catalog (1-Click Institutional Rollout)
+                </h2>
+                <p className="trade-section-subtitle">
                   Instantly provision additional Craftsmen Training Scheme (CTS) vocational trades with pre-configured
                   modules, hands-on workshop practicals, and DEC-05 safety-critical rubric criteria.
                 </p>
               </div>
-              <Badge tone="info">DGT NSQF Level 4/5 Ready</Badge>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Trade 1: Fitter */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-blue-300 transition">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                      FIT-01
-                    </span>
-                    <span className="text-xs font-semibold text-slate-500">2-Year CTS Course</span>
-                  </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Fitter Trade</h4>
-                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                    Precision bench fitting, vernier marking, hacksawing to ±0.05mm, lathe operations, drilling, and mechanical assembly.
-                  </p>
-                  <div className="mt-3 text-[11px] text-slate-500 bg-white p-2 rounded border border-slate-200">
-                    Includes: Module 1 (Bench Fitting) with 4 rubric criteria & mandatory PPE gate.
-                  </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon={FolderSync}
-                  onClick={() => handleDeployTrade('FIT-01', 'Fitter')}
-                  disabled={deployingTrade === 'FIT-01'}
-                >
-                  {deployingTrade === 'FIT-01' ? 'Deploying...' : 'Roll Out Fitter Trade'}
-                </Button>
-              </div>
-
-              {/* Trade 2: Welder */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-blue-300 transition">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-orange-700 bg-orange-100 px-2 py-0.5 rounded">
-                      WEL-01
-                    </span>
-                    <span className="text-xs font-semibold text-slate-500">1-Year CTS Course</span>
-                  </div>
-                  <h4 className="font-bold text-slate-900 text-sm">Welder (Gas & Electric)</h4>
-                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                    Shielded Metal Arc Welding (SMAW), Oxy-Acetylene gas cutting, single V-butt joints (1F/2F), and non-destructive weld inspection.
-                  </p>
-                  <div className="mt-3 text-[11px] text-slate-500 bg-white p-2 rounded border border-slate-200">
-                    Includes: Module 1 (SMAW Flat Position) with ventilation safety gates.
-                  </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon={FolderSync}
-                  onClick={() => handleDeployTrade('WEL-01', 'Welder')}
-                  disabled={deployingTrade === 'WEL-01'}
-                >
-                  {deployingTrade === 'WEL-01' ? 'Deploying...' : 'Roll Out Welder Trade'}
-                </Button>
-              </div>
-
-              {/* Trade 3: COPA */}
-              <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-4 hover:border-blue-300 transition">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-mono text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-                      COPA-01
-                    </span>
-                    <span className="text-xs font-semibold text-slate-500">1-Year CTS Course</span>
-                  </div>
-                  <h4 className="font-bold text-slate-900 text-sm">COPA (Computer Operator)</h4>
-                  <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                    Relational database design, 3NF schema normalization, SQL DDL/DML execution, office automation, and web scripting.
-                  </p>
-                  <div className="mt-3 text-[11px] text-slate-500 bg-white p-2 rounded border border-slate-200">
-                    Includes: Module 1 (Relational SQL & Schema Design) with electrical safety.
-                  </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  icon={FolderSync}
-                  onClick={() => handleDeployTrade('COPA-01', 'COPA')}
-                  disabled={deployingTrade === 'COPA-01'}
-                >
-                  {deployingTrade === 'COPA-01' ? 'Deploying...' : 'Roll Out COPA Trade'}
-                </Button>
+              <div className="trade-section-controls">
+                <Badge tone="info">DGT NSQF Level 4/5 Ready</Badge>
+                <TradeDeployDropdown
+                  provisionedCodes={healthData.metrics.provisioned_trade_codes}
+                  onDeploy={loadHealth}
+                />
               </div>
             </div>
-          </div>
+
+            <div className="trade-catalog-grid">
+              {EXPANSION_TRADES.map((trade) => {
+                const isProvisioned = provisionedSet.has(trade.code);
+                const isDeploying = deployingTrade === trade.code;
+                return (
+                  <div key={trade.code} className="trade-card">
+                    <div>
+                      <div className="trade-card-top">
+                        <span className={`trade-code-pill trade-code-${trade.tone}`}>
+                          {trade.code}
+                        </span>
+                        <span className="trade-duration">{trade.duration}</span>
+                      </div>
+                      <h3 className="trade-card-title">{trade.name}</h3>
+                      <p className="trade-card-summary">{trade.summary}</p>
+                      <div className="trade-card-includes">Includes: {trade.includes}</div>
+                    </div>
+
+                    <div className="trade-card-footer">
+                      {isProvisioned ? (
+                        <div className="trade-provisioned-row">
+                          <Badge tone="success">Provisioned</Badge>
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => handleDeployTrade(trade.code, trade.name)}
+                            loading={isDeploying}
+                            disabled={isDeploying}
+                          >
+                            {!isDeploying ? <FolderSync size={14} /> : null}
+                            Verify Sync
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="btn-block"
+                          onClick={() => handleDeployTrade(trade.code, trade.name)}
+                          loading={isDeploying}
+                          disabled={isDeploying}
+                        >
+                          {!isDeploying ? <FolderSync size={14} /> : null}
+                          {isDeploying ? 'Deploying…' : `Roll Out ${trade.code}`}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
 
           {/* Section 4: Security & Operational Perimeter */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-              <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2 border-b pb-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                Security & Compliance Hardening Matrix
-              </h4>
-              <ul className="text-xs space-y-2.5 text-slate-600">
-                <li className="flex items-center justify-between">
-                  <span>Server-Side IDOR Scoping Enforcer:</span>
+          <section className="dashboard-grid" aria-label="Security and disaster recovery">
+            <div className="card">
+              <div className="section-heading">
+                <h2>
+                  <ShieldCheck size={17} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                  Security &amp; Compliance Hardening Matrix
+                </h2>
+              </div>
+              <ul className="detail-list detail-list-tight">
+                <li className="detail-row">
+                  <span>Server-Side IDOR Scoping Enforcer</span>
                   <Badge tone="success">Active (Role-Scoped)</Badge>
                 </li>
-                <li className="flex items-center justify-between">
-                  <span>Session Cookie Security (HttpOnly / SameSite):</span>
-                  <Badge tone="success">Enforced</Badge>
+                <li className="detail-row">
+                  <span>Session Cookie Security (HttpOnly / SameSite)</span>
+                  <Badge tone={healthData.infrastructure.session_cookie_httponly ? 'success' : 'warning'}>
+                    {healthData.infrastructure.session_cookie_httponly ? 'Enforced' : 'Review'}
+                  </Badge>
                 </li>
-                <li className="flex items-center justify-between">
-                  <span>CSRF Double-Submit Verification:</span>
-                  <Badge tone="success">Enabled</Badge>
+                <li className="detail-row">
+                  <span>CSRF Double-Submit Verification</span>
+                  <Badge tone={healthData.infrastructure.csrf_protection ? 'success' : 'warning'}>
+                    {healthData.infrastructure.csrf_protection ? 'Enabled' : 'Disabled'}
+                  </Badge>
                 </li>
-                <li className="flex items-center justify-between">
-                  <span>DEC-09 CSV Formula Injection Neutralization:</span>
-                  <Badge tone="success">Sanitized</Badge>
+                <li className="detail-row">
+                  <span>DEC-09 CSV Formula Injection Neutralization</span>
+                  <Badge tone={healthData.infrastructure.formula_injection_defense ? 'success' : 'warning'}>
+                    {healthData.infrastructure.formula_injection_defense ? 'Sanitized' : 'Review'}
+                  </Badge>
                 </li>
-                <li className="flex items-center justify-between">
-                  <span>DEC-08 Dedicated Private Uploads Directory:</span>
-                  <Badge tone="success">Isolated</Badge>
+                <li className="detail-row">
+                  <span>DEC-08 Dedicated Private Uploads Directory</span>
+                  <Badge tone={healthData.infrastructure.storage_writable ? 'success' : 'warning'}>
+                    {healthData.infrastructure.storage_writable ? 'Isolated & Writable' : 'Read-Only / Missing'}
+                  </Badge>
                 </li>
               </ul>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-              <h4 className="font-bold text-slate-900 text-sm flex items-center gap-2 border-b pb-2">
-                <HardDrive className="w-4 h-4 text-blue-600" />
-                Storage & Disaster Recovery Runbook
-              </h4>
-              <div className="text-xs space-y-2 text-slate-600">
-                <p>
-                  Database state is maintained with continuous transactional integrity. Administrators can generate on-demand
-                  SQL snapshots or use the automated backup runbook:
-                </p>
-                <div className="bg-slate-900 text-slate-100 p-3 rounded-lg font-mono text-[11px] space-y-1">
-                  <div># Trigger on-demand backup snapshot:</div>
-                  <div className="text-emerald-400">GET /api/v1/system/backup</div>
-                  <div className="mt-2 text-slate-400"># Verify database schema integrity:</div>
-                  <div className="text-emerald-400">GET /api/v1/system/uat/run</div>
+            <div className="card">
+              <div className="section-heading">
+                <h2>
+                  <HardDrive size={17} style={{ verticalAlign: 'text-bottom', marginRight: 6 }} />
+                  Storage &amp; Disaster Recovery Runbook
+                </h2>
+              </div>
+
+              <div className="storage-meter">
+                <div className="storage-meter-header">
+                  <span>Host Storage Utilization</span>
+                  <strong>
+                    {formatGigabytes(diskFree)} GB free of {formatGigabytes(diskTotal)} GB ({diskUsedPct}% used)
+                  </strong>
+                </div>
+                <div className="progress-track">
+                  <div className="progress-fill" style={{ width: `${diskUsedPct}%` }} />
                 </div>
               </div>
+
+              <p className="runbook-copy">
+                Database state is maintained with continuous transactional integrity. Generate an on-demand SQL snapshot
+                above or run the automated UAT verification suite:
+              </p>
+
+              <div className="runbook-terminal">
+                <div># Trigger on-demand SQL backup snapshot:</div>
+                <div className="runbook-cmd">GET {API_BASE}/system/backup</div>
+                <div style={{ marginTop: 8 }}># Verify database schema &amp; invariants:</div>
+                <div className="runbook-cmd">GET {API_BASE}/system/uat/run</div>
+              </div>
+
+              <div className="runbook-actions">
+                <Link to="/admin/uat" className="text-link">
+                  Open UAT Verification Center →
+                </Link>
+              </div>
             </div>
-          </div>
+          </section>
         </div>
       ) : null}
     </div>
   );
 }
-
