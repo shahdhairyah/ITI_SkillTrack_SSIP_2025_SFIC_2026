@@ -10,6 +10,11 @@ class Database
     private static ?PDO $pdo = null;
     private static string $activeDriver = 'mysql';
 
+    public static function connection(): PDO
+    {
+        return self::getConnection();
+    }
+
     public static function getConnection(): PDO
     {
         if (self::$pdo !== null) {
