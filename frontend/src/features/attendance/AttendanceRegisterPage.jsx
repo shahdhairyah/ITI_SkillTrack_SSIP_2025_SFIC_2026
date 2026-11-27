@@ -13,7 +13,9 @@ import {
   ShieldAlert,
   RotateCcw,
   History,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Search,
+  Pencil
 } from 'lucide-react';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useToast } from '../../app/providers/ToastProvider';
@@ -32,7 +34,6 @@ import { formatDate, toTitleCase } from '../../lib/format';
 export default function AttendanceRegisterPage() {
   const { id } = useParams();
   const sessionId = parseInt(id, 10);
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const isStaff = user?.role === 'administrator' || user?.role === 'instructor';
@@ -51,6 +52,21 @@ export default function AttendanceRegisterPage() {
   const [newStatus, setNewStatus] = useState('present');
   const [correctionReason, setCorrectionReason] = useState('');
   const [correctionNote, setCorrectionNote] = useState('');
+
+  // Roster filter & search
+  const [rosterSearch, setRosterSearch] = useState('');
+  const [rosterStatusFilter, setRosterStatusFilter] = useState('all');
+
+  // Edit Session Modal state
+  const [editSessionOpen, setEditSessionOpen] = useState(false);
+  const [sessionForm, setSessionForm] = useState({
+    session_date: '',
+    start_time: '',
+    end_time: '',
+    topic: '',
+    session_type: 'practical',
+    notes: '',
+  });
 
   const { data, loading, error, reload } = useApiResource(async () => {
     const register = await api.get(`/sessions/${sessionId}/attendance`);
@@ -178,6 +194,7 @@ export default function AttendanceRegisterPage() {
     }
   }
 
+
   async function handleFinalSubmit() {
     setSubmitting(true);
     try {
@@ -206,6 +223,7 @@ export default function AttendanceRegisterPage() {
       setSubmitting(false);
     }
   }
+
 
   async function handleControlledCorrection(e) {
     e.preventDefault();
@@ -245,6 +263,54 @@ export default function AttendanceRegisterPage() {
     }
   }
 
+  function openEditSessionModal() {
+    if (!session) return;
+    setSessionForm({
+      session_date: session.session_date || '',
+      start_time: session.start_time?.slice(0, 5) || '09:00',
+      end_time: session.end_time?.slice(0, 5) || '13:00',
+      topic: session.topic || '',
+      session_type: session.session_type || 'practical',
+      notes: session.notes || '',
+    });
+    setEditSessionOpen(true);
+  }
+
+  async function handleUpdateSession(e) {
+    e.preventDefault();
+    if (!sessionForm.topic.trim()) {
+      toast({ tone: 'error', message: 'Session topic is required.' });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await api.put(`/sessions/${sessionId}`, sessionForm);
+      toast({ tone: 'success', message: 'Session details updated.' });
+      setEditSessionOpen(false);
+      reload();
+    } catch (err) {
+      toast({ tone: 'error', message: err.message || 'Failed to update session.' });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const filteredRoster = roster.filter((student) => {
+    const currentMark = marks[student.student_id]?.status || '';
+    if (rosterStatusFilter === 'unmarked' && currentMark !== '') return false;
+    if (rosterStatusFilter !== 'all' && rosterStatusFilter !== 'unmarked' && currentMark !== rosterStatusFilter) {
+      return false;
+    }
+    if (rosterSearch.trim()) {
+      const q = rosterSearch.trim().toLowerCase();
+      return (
+        student.name?.toLowerCase().includes(q) ||
+        student.admission_no?.toLowerCase().includes(q)
+      );
+    }
+    return true;
+  });
+
   return (
     <div>
       <div className="mb-4">
@@ -263,18 +329,26 @@ export default function AttendanceRegisterPage() {
               <>
                 <Button
                   variant="secondary"
+                  onClick={openEditSessionModal}
+                  disabled={submitting}
+                >
+                  <Pencil size={15} />
+                  Edit Session
+                </Button>
+                <Button
+                  variant="secondary"
                   onClick={handleSaveDraft}
                   disabled={submitting}
-                  icon={Save}
                 >
+                  <Save size={15} />
                   Save Draft
                 </Button>
                 <Button
                   variant="primary"
                   onClick={() => setReviewModalOpen(true)}
                   disabled={submitting}
-                  icon={Send}
                 >
+                  <Send size={15} />
                   Review & Submit
                 </Button>
               </>
@@ -384,6 +458,43 @@ export default function AttendanceRegisterPage() {
         </div>
       )}
 
+      {/* Roster Search & Filter Bar */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-3.5 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="relative flex-1 max-w-sm">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search trainee or admission no…"
+            className="form-input pl-9 w-full rounded-xl text-sm bg-slate-50/70"
+            value={rosterSearch}
+            onChange={(e) => setRosterSearch(e.target.value)}
+          />
+        </div>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {[
+            { key: 'all', label: `All (${totalRoster})` },
+            { key: 'unmarked', label: `Unmarked (${currentCounts.unmarked})` },
+            { key: 'present', label: `Present (${currentCounts.present})` },
+            { key: 'late', label: `Late (${currentCounts.late})` },
+            { key: 'absent', label: `Absent (${currentCounts.absent})` },
+            { key: 'excused', label: `Excused (${currentCounts.excused})` },
+          ].map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setRosterStatusFilter(f.key)}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                rosterStatusFilter === f.key
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Authoritative Roster Table */}
       <div className="card overflow-hidden">
         <div className="overflow-x-auto">
@@ -399,7 +510,7 @@ export default function AttendanceRegisterPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {roster.map((student, idx) => {
+              {filteredRoster.map((student, idx) => {
                 const currentMark = marks[student.student_id]?.status;
                 const currentNote = marks[student.student_id]?.note || '';
                 const correctionCount = student.correction_count || 0;
@@ -688,6 +799,84 @@ export default function AttendanceRegisterPage() {
                 disabled={correctionReason.trim().length < 10}
               >
                 Apply Correction & Log Audit
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
+      {/* Edit Session Modal */}
+      {editSessionOpen && (
+        <Modal title={`Edit Session #${sessionId}`} onClose={() => setEditSessionOpen(false)}>
+          <form onSubmit={handleUpdateSession} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Field label="Session Date" required>
+                <input
+                  type="date"
+                  className="form-input w-full rounded-xl"
+                  value={sessionForm.session_date}
+                  onChange={(e) => setSessionForm({ ...sessionForm, session_date: e.target.value })}
+                  required
+                />
+              </Field>
+              <Field label="Start Time" required>
+                <input
+                  type="time"
+                  className="form-input w-full rounded-xl"
+                  value={sessionForm.start_time}
+                  onChange={(e) => setSessionForm({ ...sessionForm, start_time: e.target.value })}
+                  required
+                />
+              </Field>
+              <Field label="End Time" required>
+                <input
+                  type="time"
+                  className="form-input w-full rounded-xl"
+                  value={sessionForm.end_time}
+                  onChange={(e) => setSessionForm({ ...sessionForm, end_time: e.target.value })}
+                  required
+                />
+              </Field>
+            </div>
+
+            <Field label="Session Type" required>
+              <select
+                className="form-select w-full rounded-xl"
+                value={sessionForm.session_type}
+                onChange={(e) => setSessionForm({ ...sessionForm, session_type: e.target.value })}
+                required
+              >
+                <option value="practical">Practical Workshop Lab</option>
+                <option value="theory">Trade Theory Class</option>
+                <option value="demonstration">Instructor Demonstration</option>
+                <option value="assessment">Practical Assessment</option>
+              </select>
+            </Field>
+
+            <Field label="Session Topic" required>
+              <input
+                type="text"
+                className="form-input w-full rounded-xl"
+                value={sessionForm.topic}
+                onChange={(e) => setSessionForm({ ...sessionForm, topic: e.target.value })}
+                required
+              />
+            </Field>
+
+            <Field label="Notes / Workshop Location">
+              <textarea
+                className="form-input w-full rounded-xl"
+                rows={2}
+                value={sessionForm.notes}
+                onChange={(e) => setSessionForm({ ...sessionForm, notes: e.target.value })}
+              />
+            </Field>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" type="button" onClick={() => setEditSessionOpen(false)} disabled={submitting}>
+                Cancel
+              </Button>
+              <Button variant="primary" type="submit" loading={submitting}>
+                Save Session Changes
               </Button>
             </div>
           </form>
