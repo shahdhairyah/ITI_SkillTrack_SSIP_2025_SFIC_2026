@@ -220,21 +220,33 @@ export default function UATCenterPage() {
       {/* TAB 2: PARALLEL REGISTER RECONCILIATION */}
       {activeTab === 'reconciliation' && (
         <div className="space-y-6">
-          <div className="p-4 bg-emerald-50 border border-emerald-200/80 rounded-2xl flex items-start gap-3">
-            <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-bold text-emerald-950 text-sm">
-                100% Parallel Register Reconciliation Certified
-              </h3>
-              <p className="text-xs text-emerald-800 mt-1 leading-relaxed">
-                Parallel recording conducted for <strong>Electrician Batch EL-2026-A</strong> over the pilot period.
-                Digital session records match authoritative physical paper registers with <strong>0.00% variance</strong> across
-                all trainee cohorts.
-              </p>
-              <div className="text-[11px] text-emerald-700 mt-2 font-mono">
-                Audit Officer: {reconciliation?.audit_officer || 'Shri K. V. Patel (Senior Training Officer)'} · Certified Date: {reconciliation?.sign_off_date || '2026-11-05'}
+          <div className="p-4 bg-emerald-50 border border-emerald-200/80 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0 mt-0.5" />
+              <div>
+                <h3 className="font-bold text-emerald-950 text-sm">
+                  100% Parallel Register Reconciliation Certified
+                </h3>
+                <p className="text-xs text-emerald-800 mt-1 leading-relaxed">
+                  Parallel recording conducted for <strong>Electrician Batch EL-2026-A</strong> over the pilot period.
+                  Digital session records match authoritative physical paper registers with <strong>0.00% variance</strong> across
+                  all trainee cohorts.
+                </p>
+                <div className="text-[11px] text-emerald-700 mt-2 font-mono">
+                  Audit Officer: {reconciliation?.audit_officer || 'Shri K. V. Patel (Senior Training Officer)'} · Certified Date: {reconciliation?.sign_off_date || '2026-11-05'}
+                </div>
               </div>
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={loadReconciliation}
+              disabled={loadingReconciliation}
+              className="shrink-0 inline-flex items-center gap-1.5 rounded-xl text-xs"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loadingReconciliation ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
