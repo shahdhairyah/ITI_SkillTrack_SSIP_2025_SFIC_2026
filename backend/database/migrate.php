@@ -103,6 +103,18 @@ try {
         : __DIR__ . '/migrations/002_phase3_attendance.sql';
     $apply($phase3File, '002_phase3_attendance');
 
+    // 3. Run Phase 4/5 Schema 003
+    $phase4File = $isSqlite
+        ? __DIR__ . '/migrations/003_phase4_phase5_competency_remedial_sqlite.sql'
+        : __DIR__ . '/migrations/003_phase4_phase5_competency_remedial.sql';
+    $apply($phase4File, '003_phase4_phase5_competency_remedial');
+
+    // 4. Run Phase 9 Quiz Schema 004
+    $phase9File = $isSqlite
+        ? __DIR__ . '/migrations/004_phase9_quizzes_sqlite.sql'
+        : __DIR__ . '/migrations/004_phase9_quizzes.sql';
+    $apply($phase9File, '004_phase9_quizzes');
+
     // 3. Run Seed
     if ($runSeed) {
         $seedFile = $isSqlite

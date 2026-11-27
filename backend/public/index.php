@@ -262,6 +262,16 @@ $router->get('/api/v1/system/health/operational', [\App\Controllers\SystemContro
 $router->post('/api/v1/system/rollout/trade', [\App\Controllers\SystemController::class, 'rolloutTrade'], $adminMw);
 $router->get('/api/v1/system/backup', [\App\Controllers\SystemController::class, 'backup'], $adminMw);
 
+// ==========================================
+// PHASE 9: BATCH QUIZZES & INSTANT EVALUATION
+// ==========================================
+$router->get('/api/v1/quizzes', [\App\Controllers\QuizController::class, 'index'], $authMw);
+$router->get('/api/v1/quizzes/{id}', [\App\Controllers\QuizController::class, 'show'], $authMw);
+$router->post('/api/v1/quizzes', [\App\Controllers\QuizController::class, 'store'], $staffMw);
+$router->patch('/api/v1/quizzes/{id}/status', [\App\Controllers\QuizController::class, 'toggleStatus'], $staffMw);
+$router->get('/api/v1/quizzes/{id}/results', [\App\Controllers\QuizController::class, 'results'], $staffMw);
+$router->post('/api/v1/quizzes/{id}/submit', [\App\Controllers\QuizController::class, 'submit'], $authCsrfMw);
+
 // Dispatch request
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = $_SERVER['REQUEST_URI'] ?? '/';

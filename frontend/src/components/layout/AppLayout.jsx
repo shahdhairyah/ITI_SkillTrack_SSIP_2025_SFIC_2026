@@ -37,6 +37,7 @@ const NAV = {
     { to: '/sessions', label: 'Training Sessions & Labs', icon: CalendarDays },
     { to: '/curriculum', label: 'Curriculum & Rubrics', icon: BookOpen },
     { to: '/assessments', label: 'Practical Assessments', icon: Award },
+    { to: '/quizzes', label: 'Batch Quizzes', icon: ClipboardCheck },
     { to: '/remedials', label: 'Remedial Support Tasks', icon: Activity },
     { to: '/admin/students', label: 'Students', icon: GraduationCap },
     { to: '/admin/instructors', label: 'Instructors', icon: Users },
@@ -50,6 +51,7 @@ const NAV = {
     { to: '/instructor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { to: '/reports', label: 'Institutional Reports', icon: FileSpreadsheet },
     { to: '/assessments', label: 'Practical Assessments', icon: Award },
+    { to: '/quizzes', label: 'Batch Quizzes', icon: ClipboardCheck },
     { to: '/remedials', label: 'Remedial Support Tasks', icon: Activity },
     { to: '/sessions', label: 'Training Sessions & Labs', icon: CalendarDays },
     { to: '/attendance/report', label: 'Attendance Matrix', icon: FileSpreadsheet },
@@ -58,6 +60,7 @@ const NAV = {
   ],
   student: [
     { to: '/student/dashboard', label: 'My Dashboard', icon: LayoutDashboard },
+    { to: '/student/quizzes', label: 'My Quizzes', icon: ClipboardCheck },
     { to: '/student/skills', label: 'My Skills & Portfolio', icon: Award },
     { to: '/student/attendance', label: 'My Attendance & Exams', icon: CalendarDays },
   ],

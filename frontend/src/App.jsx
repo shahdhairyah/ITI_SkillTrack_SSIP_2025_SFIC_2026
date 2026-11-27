@@ -29,6 +29,8 @@ import ReportsHubPage from './features/reports/ReportsHubPage';
 import AuditLogPage from './features/audit/AuditLogPage';
 import UATCenterPage from './features/uat/UATCenterPage';
 import SystemHealthPage from './features/system/SystemHealthPage';
+import QuizManagementPage from './features/quiz/QuizManagementPage';
+import StudentQuizPage from './features/quiz/StudentQuizPage';
 import NotFoundPage from './features/misc/NotFoundPage';
 
 export default function App() {
@@ -55,9 +57,10 @@ export default function App() {
                 <Route path="reports" element={<ReportsHubPage />} />
               </Route>
 
-              {/* Phase 4 Instructor Assessments */}
+              {/* Phase 4 Instructor Assessments & Phase 9 Quizzes */}
               <Route element={<RoleRoute roles={['administrator', 'instructor']} />}>
                 <Route path="assessments" element={<AssessmentWorkspacePage />} />
+                <Route path="quizzes" element={<QuizManagementPage />} />
               </Route>
 
               <Route element={<RoleRoute roles={['administrator', 'monitoring_officer']} />}>
@@ -86,6 +89,7 @@ export default function App() {
 
               <Route element={<RoleRoute roles={['student']} />}>
                 <Route path="student/dashboard" element={<StudentDashboard />} />
+                <Route path="student/quizzes" element={<StudentQuizPage />} />
                 <Route path="student/attendance" element={<StudentAttendancePage />} />
                 <Route path="student/skills" element={<StudentSkillsPage />} />
               </Route>
