@@ -11,6 +11,7 @@ import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import Field from '../../components/common/Field';
 import Button from '../../components/common/Button';
+import GeoMapPreview from '../../components/common/GeoMapPreview';
 import {
   Award,
   CheckCircle2,
@@ -20,7 +21,9 @@ import {
   Plus,
   ShieldAlert,
   HelpCircle,
-  FileText
+  FileText,
+  Camera,
+  XCircle
 } from 'lucide-react';
 
 export default function AssessmentWorkspacePage() {
@@ -39,12 +42,18 @@ export default function AssessmentWorkspacePage() {
   const [generalFeedback, setGeneralFeedback] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  // Geo photo review modal state
+  const [reviewModalPhoto, setReviewModalPhoto] = useState(null);
+  const [reviewRemarks, setReviewRemarks] = useState('');
+  const [reviewing, setReviewing] = useState(false);
+
   const { data, loading, error, reload } = useApiResource(async () => {
-    const [batches, matrix] = await Promise.all([
+    const [batches, matrix, photos] = await Promise.all([
       api.get('/batches'),
-      selectedBatchId ? api.get(`/batches/${selectedBatchId}/competency-matrix`).catch(() => null) : null
+      selectedBatchId ? api.get(`/batches/${selectedBatchId}/competency-matrix`).catch(() => null) : null,
+      selectedBatchId ? api.get(`/practical-photos?batch_id=${selectedBatchId}`).catch(() => []) : []
     ]);
-    return { batches: batches || [], matrix };
+    return { batches: batches || [], matrix, photos: Array.isArray(photos) ? photos : [] };
   }, [selectedBatchId]);
 
   if (loading) return <Loader label="Loading instructor practical assessment workspace…" />;
@@ -52,9 +61,36 @@ export default function AssessmentWorkspacePage() {
 
   const batches = data?.batches || [];
   const matrix = data?.matrix;
+  const photos = data?.photos || [];
   const batch = matrix?.batch;
   const activities = matrix?.activities || [];
   const students = matrix?.matrix || [];
+
+  async function handlePhotoDecision(decision) {
+    if (!reviewModalPhoto) return;
+    if (decision === 'rejected' && !reviewRemarks.trim()) {
+      toast.show({ type: 'error', message: 'Please enter a rejection reason so the student can re-upload.' });
+      return;
+    }
+    setReviewing(true);
+    try {
+      await api.post(`/practical-photos/${reviewModalPhoto.id}/review`, {
+        decision,
+        remarks: reviewRemarks.trim()
+      });
+      toast.show({
+        type: decision === 'approved' ? 'success' : 'warning',
+        message: `Practical photo ${decision} (${user?.role === 'administrator' ? 'Admin' : 'Instructor'} stage).`
+      });
+      setReviewModalPhoto(null);
+      setReviewRemarks('');
+      await reload();
+    } catch (err) {
+      toast.show({ type: 'error', message: err.message || 'Failed to record photo review.' });
+    } finally {
+      setReviewing(false);
+    }
+  }
 
   async function openAssessmentForm(student, activity) {
     setSelectedStudent(student);
@@ -275,16 +311,47 @@ export default function AssessmentWorkspacePage() {
                           </div>
                         )}
 
-                        {!isComp && !isNP && (
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => openAssessmentForm(row.student, cell)}
-                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
-                          >
-                            Evaluate
-                          </Button>
-                        )}
+                        {!isComp && !isNP && (() => {
+                          const photo = photos.find(
+                            (p) => Number(p.student_id) === Number(row.student.id) && Number(p.activity_id) === Number(act.id)
+                          );
+                          const isPhotoApproved = photo?.overall_status === 'approved';
+                          return (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
+                              <Button
+                                size="sm"
+                                variant={isPhotoApproved ? 'primary' : 'secondary'}
+                                onClick={() => openAssessmentForm(row.student, cell)}
+                                style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                                title={isPhotoApproved ? 'Photo approved by Instructor & Admin — Ready to evaluate' : 'Requires Instructor + Admin geo-photo approval before submission'}
+                              >
+                                Evaluate
+                              </Button>
+                              {photo ? (
+                                <button
+                                  type="button"
+                                  onClick={() => { setReviewModalPhoto(photo); setReviewRemarks(''); }}
+                                  style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                    fontSize: '0.7rem',
+                                    cursor: 'pointer',
+                                    color: isPhotoApproved ? '#059669' : photo.overall_status === 'rejected' ? '#dc2626' : '#d97706',
+                                    fontWeight: 600,
+                                  }}
+                                >
+                                  {isPhotoApproved
+                                    ? 'Geo Photo Approved (2/2)'
+                                    : photo.overall_status === 'rejected'
+                                      ? 'Photo Rejected'
+                                      : `Review Photo (${photo.overall_status === 'partially_approved' ? '1/2' : '0/2'})`}
+                                </button>
+                              ) : (
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)' }}>No Geo Photo</span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
                     );
                   })}
@@ -302,6 +369,183 @@ export default function AssessmentWorkspacePage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Geo-Tagged Practical Photo Verification Queue (Dual Approval: Instructor + Admin) */}
+      <div className="card" style={{ marginTop: '1.5rem' }}>
+        <div className="section-heading">
+          <div>
+            <h2>Geo-Tagged Practical Photo Verification (Instructor + Admin)</h2>
+            <p>Both Instructor and Administrator must approve a student&apos;s geo-tagged practical photo before practical evaluation can be submitted.</p>
+          </div>
+          <Badge variant="info">{photos.length} Photo{photos.length === 1 ? '' : 's'}</Badge>
+        </div>
+
+        {photos.length === 0 ? (
+          <EmptyState
+            icon={Camera}
+            title="No practical photos uploaded for this batch yet"
+            description="Students upload their geo-tagged practical photo from My Skills & Portfolio before evaluation."
+          />
+        ) : (
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Activity</th>
+                  <th>GPS Coordinates</th>
+                  <th>Instructor</th>
+                  <th>Admin</th>
+                  <th>Overall</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {photos.map((p) => (
+                  <tr key={p.id}>
+                    <td>
+                      <strong>{p.student_name}</strong>
+                      <div className="table-sub">{p.admission_no}</div>
+                    </td>
+                    <td>
+                      <strong>{p.activity_code}</strong>
+                      <div className="table-sub">{p.activity_title}</div>
+                    </td>
+                    <td>
+                      <span style={{ fontSize: '0.82rem' }}>
+                        {Number(p.latitude).toFixed(5)}, {Number(p.longitude).toFixed(5)}
+                      </span>
+                      {p.location_label ? <div className="table-sub">{p.location_label}</div> : null}
+                    </td>
+                    <td>
+                      <Badge variant={p.instructor_status === 'approved' ? 'success' : p.instructor_status === 'rejected' ? 'danger' : 'warning'}>
+                        {p.instructor_status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Badge variant={p.admin_status === 'approved' ? 'success' : p.admin_status === 'rejected' ? 'danger' : 'warning'}>
+                        {p.admin_status}
+                      </Badge>
+                    </td>
+                    <td>
+                      <Badge variant={p.overall_status === 'approved' ? 'success' : p.overall_status === 'rejected' ? 'danger' : 'warning'}>
+                        {p.overall_status.replace('_', ' ')}
+                      </Badge>
+                      {p.practical_submitted_at ? (
+                        <div className="table-sub" style={{ color: '#059669', fontWeight: 600 }}>Practical Submitted</div>
+                      ) : null}
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => { setReviewModalPhoto(p); setReviewRemarks(''); }}
+                        >
+                          <Camera size={14} /> Inspect &amp; Review
+                        </Button>
+                        {p.overall_status === 'approved' ? (
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => {
+                              const stRow = students.find((s) => Number(s.student.id) === Number(p.student_id));
+                              const cell = stRow?.activities?.[p.activity_id];
+                              if (stRow && cell) {
+                                openAssessmentForm(stRow.student, cell);
+                              } else {
+                                openAssessmentForm({ id: p.student_id, name: p.student_name, admission_no: p.admission_no }, { activity_id: p.activity_id });
+                              }
+                            }}
+                          >
+                            <CheckCircle2 size={14} /> Evaluate Practical
+                          </Button>
+                        ) : null}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Geo Photo Review Modal */}
+      {reviewModalPhoto && (
+        <Modal
+          open={!!reviewModalPhoto}
+          onClose={() => setReviewModalPhoto(null)}
+          title={`Practical Photo Verification · ${reviewModalPhoto.student_name}`}
+          description={`${reviewModalPhoto.activity_code} — ${reviewModalPhoto.activity_title}`}
+          size="lg"
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Badge variant={reviewModalPhoto.instructor_status === 'approved' ? 'success' : reviewModalPhoto.instructor_status === 'rejected' ? 'danger' : 'warning'}>
+                Instructor: {reviewModalPhoto.instructor_status.toUpperCase()}
+              </Badge>
+              <Badge variant={reviewModalPhoto.admin_status === 'approved' ? 'success' : reviewModalPhoto.admin_status === 'rejected' ? 'danger' : 'warning'}>
+                Admin: {reviewModalPhoto.admin_status.toUpperCase()}
+              </Badge>
+              <Badge variant={reviewModalPhoto.overall_status === 'approved' ? 'success' : reviewModalPhoto.overall_status === 'rejected' ? 'danger' : 'warning'}>
+                Overall: {reviewModalPhoto.overall_status.replace('_', ' ').toUpperCase()}
+              </Badge>
+            </div>
+
+            <div style={{ textAlign: 'center', background: '#f8fafc', padding: '0.5rem', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+              <img
+                src={reviewModalPhoto.file_url}
+                alt={reviewModalPhoto.original_name}
+                style={{ maxHeight: '260px', maxWidth: '100%', borderRadius: '6px' }}
+              />
+            </div>
+
+            <GeoMapPreview
+              latitude={reviewModalPhoto.latitude}
+              longitude={reviewModalPhoto.longitude}
+              accuracy={reviewModalPhoto.accuracy_meters}
+              locationLabel={reviewModalPhoto.location_label}
+              capturedAt={reviewModalPhoto.captured_at}
+              height={180}
+            />
+
+            <Field label={`Review Remarks (${user?.role === 'administrator' ? 'Administrator' : 'Instructor'}) — required if rejecting`}>
+              <textarea
+                rows={2}
+                className="form-input"
+                placeholder="Enter verification note or rejection reason for student re-upload..."
+                value={reviewRemarks}
+                onChange={(e) => setReviewRemarks(e.target.value)}
+              />
+            </Field>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+              <Button type="button" variant="ghost" onClick={() => setReviewModalPhoto(null)}>
+                Close
+              </Button>
+              <Button
+                type="button"
+                variant="ghost-danger"
+                loading={reviewing}
+                disabled={reviewing}
+                onClick={() => handlePhotoDecision('rejected')}
+              >
+                <XCircle size={15} /> Reject (Allow Re-upload)
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                loading={reviewing}
+                disabled={reviewing}
+                onClick={() => handlePhotoDecision('approved')}
+              >
+                <CheckCircle2 size={15} /> Approve Photo
+              </Button>
+            </div>
+          </div>
+        </Modal>
       )}
 
       {/* Authoritative Assessment Modal */}

@@ -34,8 +34,9 @@ function buildQuery(params = {}) {
 async function request(path, { method = 'GET', body, authRetry = true } = {}) {
   const headers = { Accept: 'application/json' };
   const isUnsafe = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+  const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
 
-  if (body !== undefined) {
+  if (body !== undefined && !isFormData) {
     headers['Content-Type'] = 'application/json';
   }
 
@@ -49,7 +50,7 @@ async function request(path, { method = 'GET', body, authRetry = true } = {}) {
       method,
       headers,
       credentials: 'include',
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isFormData ? body : JSON.stringify(body),
     });
   } catch (err) {
     console.error('API connection failed:', err, 'Path:', `${API_BASE}${path}`);
@@ -104,6 +105,9 @@ export const api = {
   },
   post(path, body) {
     return request(path, { method: 'POST', body: body ?? {} });
+  },
+  upload(path, formData) {
+    return request(path, { method: 'POST', body: formData });
   },
   put(path, body) {
     return request(path, { method: 'PUT', body: body ?? {} });

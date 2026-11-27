@@ -279,6 +279,15 @@ $router->delete('/api/v1/quizzes/{id}', [\App\Controllers\QuizController::class,
 $router->get('/api/v1/guj-iti', [\App\Controllers\GujiTiController::class, 'index'], $adminMw);
 $router->post('/api/v1/guj-iti', [\App\Controllers\GujiTiController::class, 'store'], $adminMw);
 
+// ==========================================
+// PHASE 11: GEO-TAGGED PRACTICAL PHOTOS & DUAL APPROVAL GATE
+// ==========================================
+$router->get('/api/v1/practical-photos', [\App\Controllers\PracticalPhotoController::class, 'index'], $authMw);
+$router->post('/api/v1/practical-photos', [\App\Controllers\PracticalPhotoController::class, 'upload'], $authCsrfMw);
+$router->post('/api/v1/practical-photos/{id}/review', [\App\Controllers\PracticalPhotoController::class, 'review'], $staffMw);
+$router->post('/api/v1/practical-photos/{id}/submit-practical', [\App\Controllers\PracticalPhotoController::class, 'submitPractical'], $authCsrfMw);
+$router->get('/api/v1/practical-photos/{id}/file', [\App\Controllers\PracticalPhotoController::class, 'file'], $authMw);
+
 // Dispatch request
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 $uri = $_SERVER['REQUEST_URI'] ?? '/';

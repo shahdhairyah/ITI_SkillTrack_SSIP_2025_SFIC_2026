@@ -300,6 +300,16 @@ class CompetencyService
             Response::error('Practical attempt not found.', 'ATTEMPT_NOT_FOUND', [], 404);
         }
 
+        // Enforce dual approval (Instructor + Admin) on student's geo-tagged practical photo before evaluation submission
+        if (!PracticalPhotoService::isApprovedForPractical($db, (int)$attempt['student_id'], (int)$attempt['activity_id'])) {
+            Response::error(
+                'Practical submission blocked: Student must upload a geo-tagged practical photo approved by BOTH Instructor and Admin first.',
+                'PHOTO_APPROVAL_REQUIRED',
+                ['student_id' => (int)$attempt['student_id'], 'activity_id' => (int)$attempt['activity_id']],
+                422
+            );
+        }
+
         // Fetch all criteria for this activity
         $critStmt = $db->prepare("
             SELECT * FROM competency_criteria
